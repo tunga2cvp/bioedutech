@@ -271,8 +271,11 @@ export class ExerciseService {
       return throwError(() => new Error('Không tìm thấy bài tập'));
     }
 
-    // Cập nhật trạng thái xuất bản - ĐÃ XÓA VÌ KHÔNG CÒN CẦN THIẾT
-    const updatedExercise = this.updateExercise(id, {});
+    // Cập nhật trạng thái xuất bản
+    const updatedExercise = this.updateExercise(id, { 
+      isPublished: true, 
+      publishedAt: new Date() 
+    });
 
     // Subscribe để lấy Exercise object và gọi API
     updatedExercise.subscribe({
@@ -281,13 +284,14 @@ export class ExerciseService {
         this.createTestOnServer(exercise).subscribe({
           next: (result) => {
             console.log('✅ Bài thi đã được tạo và xuất bản trên server:', result);
-            console.log('Server test ID:', String(result.id));
+            console.log('Server test ID:', result.server_test_id);
             console.log('Test status:', result.status);
             console.log('Total questions:', result.total_questions);
             
             // Cập nhật exercise với server ID
             this.updateExercise(exercise.id, { 
-              id: String(result.id)
+              id: result.server_test_id,
+              publishedAt: new Date(result.created_at)
             }).subscribe({
               next: () => {
                 console.log('✅ Exercise ID updated with server ID');
@@ -361,12 +365,7 @@ export class ExerciseService {
 
   // Helper methods
   private generateId(): string {
-    // Tạo ID dạng UUID để tương thích với API
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
+    return 'ex_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   }
 
   private getCurrentUserId(): string {
@@ -383,23 +382,7 @@ export class ExerciseService {
           console.log('Exams from API:', response.exams);
           
           // Convert TestListItem to Exercise format
-          console.log('🔄 Converting', response.exams.length, 'tests to exercises...');
-          const exercises: Exercise[] = response.exams.map((test, index) => {
-            console.log(`Converting test ${index + 1}:`, test);
-            try {
-              const exercise = this.convertTestToExercise(test);
-              console.log(`✅ Successfully converted test ${index + 1}:`, exercise.title);
-              return exercise;
-            } catch (error) {
-              console.error(`❌ Error converting test ${index + 1}:`, error);
-              console.error('Problematic test data:', test);
-              // Return null để filter ra sau
-              return null;
-            }
-          }).filter((exercise): exercise is Exercise => exercise !== null); // Type guard để filter out null exercises
-          
-          console.log('📊 Final exercises count:', exercises.length);
-          console.log('📋 Final exercises:', exercises.map(ex => ({ id: ex.id, title: ex.title })));
+          const exercises = response.exams.map(test => this.convertTestToExercise(test));
           this.exercisesSubject.next(exercises);
           console.log('Loaded exercises from server:', exercises.length);
           console.log('Converted exercises:', exercises);
@@ -415,7 +398,6 @@ export class ExerciseService {
           // Fallback to localStorage nếu server lỗi
           this.loadExercisesFromStorage();
           observer.error(error);
-          observer.complete(); // Đảm bảo Observable hoàn thành
         }
       });
     });
@@ -432,7 +414,7 @@ export class ExerciseService {
       this.apiService.getTestDetail(testId).subscribe({
         next: (response: TestDetailResponse) => {
           console.log('✅ Test Detail API Response received:', response);
-          console.log('Response id:', String(response.id));
+          console.log('Response test_id:', response.test_id);
           console.log('Response questions count:', response.questions?.length || 0);
           
           // Convert TestDetailResponse to Exercise format
@@ -510,7 +492,7 @@ export class ExerciseService {
   private convertTestToExercise(test: TestListItem): Exercise {
     console.log('=== CONVERTING TEST TO EXERCISE ===');
     console.log('Raw test object from API:', JSON.stringify(test, null, 2));
-    console.log('Test ID field:', test.id);
+    console.log('Test ID field:', test.test_id);
     console.log('Exam name field:', test.exam_name);
     console.log('All test fields:', Object.keys(test));
     
@@ -528,24 +510,23 @@ export class ExerciseService {
       order: 1
     }];
 
-    // Sử dụng server id làm exercise ID - bắt buộc phải có từ API
+    // Sử dụng server test_id làm exercise ID - kiểm tra kỹ hơn
     let exerciseId: string;
-    if (test.id && String(test.id).trim() !== '') {
-      exerciseId = String(test.id);
-      console.log('✅ Using server id as exercise ID:', exerciseId);
+    if (test.test_id && test.test_id.trim() !== '') {
+      exerciseId = test.test_id;
+      console.log('✅ Using server test_id as exercise ID:', exerciseId);
     } else {
-      // Nếu không có id từ API, báo lỗi thay vì tạo ID mới
-      console.error('❌ No id found in API response - this should not happen');
-      console.error('Available fields:', Object.keys(test));
-      console.error('ID value:', test.id, 'Type:', typeof test.id);
-      throw new Error('API response missing id field');
+      // Nếu không có test_id, tạo ID từ exam_name hoặc generate
+      exerciseId = test.exam_name || this.generateId();
+      console.log('⚠️ No test_id found, using fallback ID:', exerciseId);
+      console.log('Available fields:', Object.keys(test));
     }
     
     console.log('Final exercise ID will be:', exerciseId);
     console.log('This ID will be used for API calls to /exams/' + exerciseId);
 
     const exercise = {
-      id: exerciseId, // Sử dụng server id từ API
+      id: exerciseId, // Sử dụng server test_id hoặc fallback
       title: test.exam_name || 'Bài tập không có tên',
       description: test.description || 'Mô tả bài tập',
       grade: test.grade || 10,
@@ -559,9 +540,7 @@ export class ExerciseService {
       startDate: test.start_date ? new Date(test.start_date) : undefined,
       endDate: test.end_date ? new Date(test.end_date) : undefined,
       assignedClasses: test.assigned_classes || [],
-      createdBy: test.created_by || 'teacher_001',
-      // Thêm totalQuestions từ API để sử dụng trong template
-      totalQuestions: test.question_count || 0
+      createdBy: test.created_by || 'teacher_001'
     };
 
     console.log('✅ Converted exercise with ID:', exercise.id);
@@ -572,41 +551,31 @@ export class ExerciseService {
   // Convert TestDetailResponse to Exercise format
   private convertTestDetailToExercise(testDetail: TestDetailResponse): Exercise {
     console.log('Converting test detail to exercise:', testDetail);
-    console.log('Test Detail ID:', testDetail.id);
+    console.log('Test Detail ID:', testDetail.test_id);
     console.log('Test Detail name:', testDetail.exam_name);
-    console.log('Test Detail questions:', testDetail.questions);
-    console.log('Questions type:', typeof testDetail.questions);
-    console.log('Is questions array?', Array.isArray(testDetail.questions));
     
     // Convert questions từ TestDetailQuestion format sang Question format
-    const questions: Question[] = (testDetail.questions && Array.isArray(testDetail.questions)) 
-      ? testDetail.questions.map((question, index) => {
-          console.log(`Converting question ${index + 1}:`, question);
-          
-          const options = question.answers.map((answer, answerIndex) => ({
-            id: this.generateId(),
-            content: answer,
-            isCorrect: question.correct_answers.includes(answerIndex),
-            order: answerIndex
-          }));
+    const questions: Question[] = testDetail.questions.map((question, index) => {
+      const options = question.answers.map((answer, answerIndex) => ({
+        id: this.generateId(),
+        content: answer,
+        isCorrect: question.correct_answers.includes(answerIndex),
+        order: answerIndex
+      }));
 
-          const convertedQuestion = {
-            id: question.question_id || this.generateId(),
-            content: question.content,
-            imageUrl: question.image || undefined,
-            options: options,
-            type: (question.correct_answers.length > 1 ? 'multiple' : 'single') as 'single' | 'multiple',
-            explanation: question.explanation,
-            order: question.order || index + 1
-          };
-          
-          console.log(`Converted question ${index + 1}:`, convertedQuestion);
-          return convertedQuestion;
-        })
-      : []; // Fallback to empty array if questions is undefined or not an array
+      return {
+        id: question.question_id || this.generateId(),
+        content: question.content,
+        imageUrl: question.image,
+        options: options,
+        type: question.correct_answers.length > 1 ? 'multiple' : 'single',
+        explanation: question.explanation,
+        order: question.order || index + 1
+      };
+    });
 
     const exercise: Exercise = {
-      id: String(testDetail.id),
+      id: testDetail.test_id,
       title: testDetail.exam_name,
       description: testDetail.description || 'Mô tả bài tập',
       grade: testDetail.grade || 10,
@@ -620,8 +589,7 @@ export class ExerciseService {
       startDate: testDetail.start_date ? new Date(testDetail.start_date) : undefined,
       endDate: testDetail.end_date ? new Date(testDetail.end_date) : undefined,
       assignedClasses: testDetail.assigned_classes || [],
-      createdBy: testDetail.created_by || 'teacher_001',
-      totalQuestions: testDetail.question_count || questions.length
+      createdBy: testDetail.created_by || 'teacher_001'
     };
 
     console.log('Converted exercise from detail:', exercise);

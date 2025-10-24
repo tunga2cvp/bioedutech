@@ -1,5 +1,5 @@
 <app-layout>
-  <div class="exercise-list-container" (click)="closeDropdown()">
+  <div class="exercise-list-container">
     <!-- Header Section -->
     <div class="header">
       <div class="container">
@@ -8,12 +8,6 @@
           <p>Quản lý và theo dõi các bài tập trắc nghiệm đã tạo</p>
           <button class="btn btn-primary" (click)="createNewExercise()">
             + Tạo Bài Tập Mới
-          </button>
-          <button class="btn btn-secondary" (click)="testButtons()" style="margin-left: 10px;">
-            Test Buttons
-          </button>
-          <button class="btn btn-secondary" (click)="testNavigation()" style="margin-left: 10px;">
-            Test Navigation
           </button>
         </div>
       </div>
@@ -38,13 +32,6 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">📝</div>
-        <div class="stat-content">
-          <h3>{{ stats.draftExercises }}</h3>
-          <p>Bản nháp</p>
-        </div>
-      </div>
-      <div class="stat-card">
         <div class="stat-icon">❓</div>
         <div class="stat-content">
           <h3>{{ stats.totalQuestions }}</h3>
@@ -57,49 +44,23 @@
   <!-- Bộ lọc -->
   <div class="filters-section">
     <div class="filters-header">
-      <h3>Bộ lọc</h3>
-      <button class="btn btn-secondary btn-sm" (click)="clearFilters()">
-        Xóa bộ lọc
+      <h3>Tìm kiếm bài tập</h3>
+      <button class="btn btn-secondary btn-sm" (click)="clearFilters()" *ngIf="searchTerm">
+        Xóa tìm kiếm
       </button>
     </div>
     
-    <div class="filters-grid">
-      <div class="filter-group">
-        <label for="search">Tìm kiếm:</label>
+    <div class="search-container">
+      <div class="search-input-wrapper">
         <input 
           type="text" 
           id="search" 
           [(ngModel)]="searchTerm" 
           (input)="onSearchChange()"
-          placeholder="Tìm theo tên, mô tả, chương..."
+          placeholder="Nhập tên bài tập để tìm kiếm..."
+          class="search-input"
         >
-      </div>
-
-      <div class="filter-group">
-        <label for="grade">Lớp học:</label>
-        <select id="grade" [(ngModel)]="filter.grade" (change)="onFilterChange()">
-          <option *ngFor="let grade of grades" [value]="grade.value">
-            {{ grade.label }}
-          </option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="chapter">Chương học:</label>
-        <select id="chapter" [(ngModel)]="filter.chapter" (change)="onFilterChange()">
-          <option *ngFor="let chapter of chapters" [value]="chapter">
-            {{ chapter }}
-          </option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="status">Trạng thái:</label>
-        <select id="status" [(ngModel)]="filter.isPublished" (change)="onFilterChange()">
-          <option *ngFor="let status of statusOptions" [value]="status.value">
-            {{ status.label }}
-          </option>
-        </select>
+        <span class="search-icon">🔍</span>
       </div>
     </div>
   </div>
@@ -132,168 +93,13 @@
 
     <!-- Exercise list -->
     <div *ngIf="!isLoading && filteredExercises.length > 0" class="exercises-grid">
-      <div class="exercise-card" *ngFor="let exercise of filteredExercises">
-        <div class="exercise-header">
-          <div class="exercise-title">
-            <h4>{{ exercise.title }}</h4>
-            <span class="badge" [ngClass]="getStatusBadgeClass(exercise)">
-              {{ getStatusText(exercise) }}
-            </span>
-          </div>
-          <div class="exercise-actions">
-            <div class="dropdown">
-              <button class="btn btn-secondary btn-sm dropdown-toggle" (click)="toggleDropdown(exercise.id); $event.stopPropagation()">
-                ⋯
-              </button>
-              <div class="dropdown-menu" [class.show]="isDropdownOpen(exercise.id)" (click)="$event.stopPropagation()">
-            <button type="button" class="dropdown-item" (click)="viewExercise(exercise, $event); closeDropdown()">
-              👁️ Xem
-            </button>
-                <button type="button" class="dropdown-item" (click)="editExercise(exercise); closeDropdown()">
-                  ✏️ Chỉnh sửa
-                </button>
-                <button type="button" class="dropdown-item" (click)="duplicateExercise(exercise)">
-                  📋 Sao chép
-                </button>
-                <div class="dropdown-divider"></div>
-                <button 
-                  type="button"
-                  class="dropdown-item" 
-                  (click)="publishExercise(exercise)"
-                  *ngIf="!exercise.isPublished"
-                >
-                  ✅ Xuất bản
-                </button>
-                <button 
-                  type="button"
-                  class="dropdown-item" 
-                  (click)="unpublishExercise(exercise)"
-                  *ngIf="exercise.isPublished"
-                >
-                  ❌ Hủy xuất bản
-                </button>
-                <div class="dropdown-divider"></div>
-                <button 
-                  type="button"
-                  class="dropdown-item danger" 
-                  (click)="deleteExercise(exercise)"
-                >
-                  🗑️ Xóa
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="exercise-content">
-          <p class="exercise-description">{{ exercise.description }}</p>
-          
-          <div class="exercise-meta">
-            <div class="meta-item">
-              <span class="meta-label">Lớp:</span>
-              <span class="meta-value">{{ getGradeLabel(exercise.grade) }}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Chương:</span>
-              <span class="meta-value">{{ exercise.chapter }}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Thời gian:</span>
-              <span class="meta-value">{{ getTimeLimitText(exercise.timeLimit) }}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Điểm tối đa:</span>
-              <span class="meta-value">{{ exercise.maxScore }}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Số câu hỏi:</span>
-              <span class="meta-value">{{ exercise.questions.length }}</span>
-            </div>
-          </div>
-
-          <div class="exercise-dates">
-            <div class="date-item">
-              <span class="date-label">Tạo lúc:</span>
-              <span class="date-value">{{ formatDate(exercise.createdAt) }}</span>
-            </div>
-            <div class="date-item" *ngIf="exercise.publishedAt">
-              <span class="date-label">Xuất bản:</span>
-              <span class="date-value">{{ formatDate(exercise.publishedAt) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="exercise-footer">
-          <div class="exercise-stats">
-            <span class="stat-item">
-              <span class="stat-icon">👥</span>
-              <span>0 học sinh</span>
-            </span>
-            <span class="stat-item">
-              <span class="stat-icon">📊</span>
-              <span>0 lượt làm</span>
-            </span>
-          </div>
-          <div class="exercise-actions-footer">
-            <button type="button" class="btn btn-outline btn-sm" (click)="previewExercise(exercise); $event.stopPropagation()">
-              👁️ Xem nhanh
-            </button>
-            <button type="button" class="btn btn-outline btn-sm" (click)="viewExercise(exercise, $event); $event.stopPropagation()">
-              📖 Xem đầy đủ
-            </button>
-            <button type="button" class="btn btn-primary btn-sm" (click)="editExercise(exercise); $event.stopPropagation()">
-              ✏️ Chỉnh sửa
-            </button>
-          </div>
-        </div>
-      </div>
+      <app-exercise-card
+        *ngFor="let exercise of filteredExercises"
+        [exercise]="exercise"
+        (viewExercise)="viewExercise($event)"
+      ></app-exercise-card>
     </div>
   </div>
 </div>
 
-<!-- Preview Modal -->
-<div class="modal-overlay" *ngIf="showPreviewModal" (click)="closePreviewModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>Xem nhanh bài tập</h3>
-      <button class="close-btn" (click)="closePreviewModal()">×</button>
-    </div>
-    <div class="modal-body" *ngIf="selectedExerciseForPreview">
-      <div class="preview-exercise-info">
-        <h4>{{ selectedExerciseForPreview.title }}</h4>
-        <p class="preview-description">{{ selectedExerciseForPreview.description }}</p>
-        <div class="preview-meta">
-          <span class="meta-badge">Lớp {{ selectedExerciseForPreview.grade }}</span>
-          <span class="meta-badge">{{ selectedExerciseForPreview.chapter }}</span>
-          <span class="meta-badge">{{ selectedExerciseForPreview.timeLimit }} phút</span>
-          <span class="meta-badge">{{ selectedExerciseForPreview.questions.length }} câu hỏi</span>
-        </div>
-      </div>
-      
-      <div class="preview-questions" *ngIf="selectedExerciseForPreview.questions.length > 0">
-        <h5>Câu hỏi mẫu:</h5>
-        <div class="preview-question" *ngFor="let question of selectedExerciseForPreview.questions.slice(0, 2); let i = index">
-          <div class="question-preview">
-            <strong>Câu {{ i + 1 }}:</strong> {{ question.content }}
-          </div>
-          <div class="options-preview">
-            <div class="option-preview" *ngFor="let option of question.options; let j = index">
-              <span class="option-letter">{{ getOptionLetter(j) }})</span>
-              <span class="option-text">{{ option.content }}</span>
-              <span class="correct-indicator" *ngIf="option.isCorrect">✓</span>
-            </div>
-          </div>
-        </div>
-        <p class="more-questions" *ngIf="selectedExerciseForPreview.questions.length > 2">
-          ... và {{ selectedExerciseForPreview.questions.length - 2 }} câu hỏi khác
-        </p>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="closePreviewModal()">Đóng</button>
-      <button class="btn btn-outline" (click)="viewExerciseFromPreview()">Xem đầy đủ</button>
-      <button class="btn btn-primary" (click)="editExerciseFromPreview()">Chỉnh sửa</button>
-    </div>
-  </div>
-</div>
 

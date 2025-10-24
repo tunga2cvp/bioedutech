@@ -8,14 +8,13 @@ export interface Exercise {
   maxScore: number;
   questions: Question[];
   createdAt: Date;
-  publishedAt?: Date;
-  isPublished: boolean;
   retryLimit?: number; // Số lần làm lại cho phép
   showAnswersAfterSubmit?: boolean; // Hiển thị đáp án sau khi nộp bài
   startDate?: Date; // Thời gian bắt đầu
   endDate?: Date; // Thời gian kết thúc
   assignedClasses?: string[]; // Danh sách lớp được phân bổ
   createdBy: string; // ID của giáo viên tạo
+  totalQuestions?: number; // Tổng số câu hỏi từ API
 }
 
 export interface Question {
@@ -64,17 +63,12 @@ export interface ImageUploadResult {
 }
 
 export interface ExerciseListFilter {
-  grade?: number;
-  chapter?: string;
-  isPublished?: boolean;
-  createdBy?: string;
   searchTerm?: string;
 }
 
 export interface ExerciseStats {
   totalExercises: number;
   publishedExercises: number;
-  draftExercises: number;
   totalQuestions: number;
   averageQuestionsPerExercise: number;
 }

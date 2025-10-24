@@ -42,7 +42,7 @@ export interface TestCreationResponse {
   result: string;
   message: string;
   test_id: string;
-  server_test_id: string;
+  id: string | number;
   created_at: string;
   status: string;
   total_questions: number;
@@ -52,11 +52,11 @@ export interface TestCreationResponse {
 
 // Test List API Models
 export interface TestListItem {
-  test_id: string;
+  id: string | number;
   exam_name: string;
   created_at: string;
   status: string;
-  total_questions: number;
+  question_count: number; // Đổi từ total_questions thành question_count
   description?: string;
   grade?: number;
   time_limit?: number;
@@ -78,25 +78,49 @@ export interface TestListResponse {
   success: boolean;       // Added success field from new API response
 }
 
-// Test Detail API Models
+// Test Detail API Models - Updated to match actual API response
 export interface TestDetailQuestion {
-  question_id: string;
   content: string;
   answers: string[];
   correct_answers: number[];
-  image?: string;
+  image?: string | null;
   explanation?: string;
   order?: number;
+  question_id?: string; // Optional since API doesn't always provide this
+}
+
+// Actual API response structure
+export interface TestDetailApiResponse {
+  success: boolean;
+  exam: {
+    exam_name: string;
+    id: string | number;
+    questions: TestDetailQuestion[];
+    description?: string;
+    grade?: number;
+    time_limit?: number;
+    max_score?: number;
+    question_count?: number;
+    created_at?: string;
+    status?: string;
+    retry_limit?: number;
+    show_answers_after_submit?: boolean;
+    start_date?: string;
+    end_date?: string;
+    assigned_classes?: string[];
+    created_by?: string;
+  };
 }
 
 export interface TestDetailResponse {
-  test_id: string;
+  id: string | number;
   exam_name: string;
   description?: string;
   grade?: number;
   time_limit?: number;
   max_score?: number;
-  questions: TestDetailQuestion[];
+  questions?: TestDetailQuestion[];
+  question_count?: number; // Thêm question_count cho detail response
   created_at: string;
   status: string;
   retry_limit?: number;
@@ -241,9 +265,31 @@ export class ApiService {
 
   // Get test detail API call - Updated to use /exams endpoint
   getTestDetail(testId: string): Observable<TestDetailResponse> {
-    return this.http.get<TestDetailResponse>(`${this.baseUrl}/exams/${testId}`, {
+    return this.http.get<TestDetailApiResponse>(`${this.baseUrl}/exams/${testId}`, {
       headers: this.getHeaders()
     }).pipe(
+      map((response: TestDetailApiResponse) => {
+        // Transform API response to expected format
+        const exam = response.exam;
+        return {
+          id: exam.id,
+          exam_name: exam.exam_name,
+          description: exam.description,
+          grade: exam.grade,
+          time_limit: exam.time_limit,
+          max_score: exam.max_score,
+          questions: exam.questions,
+          question_count: exam.question_count,
+          created_at: exam.created_at || new Date().toISOString(),
+          status: exam.status || 'active',
+          retry_limit: exam.retry_limit,
+          show_answers_after_submit: exam.show_answers_after_submit,
+          start_date: exam.start_date,
+          end_date: exam.end_date,
+          assigned_classes: exam.assigned_classes,
+          created_by: exam.created_by
+        } as TestDetailResponse;
+      }),
       catchError(this.handleError)
     );
   }

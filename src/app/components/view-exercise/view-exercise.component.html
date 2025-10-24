@@ -1,153 +1,62 @@
 <app-layout>
   <div class="view-exercise-container">
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Đang tải bài tập...</p>
-  </div>
-
-  <!-- Exercise Content -->
-  <div *ngIf="!isLoading && exercise" class="exercise-content">
-    <!-- Header -->
-    <div class="exercise-header">
-      <div class="exercise-info">
-        <h1>{{ exercise.title }}</h1>
-        <p class="exercise-description">{{ exercise.description }}</p>
-        <div class="exercise-meta">
-          <span class="meta-item">
-            <strong>Lớp:</strong> Lớp {{ exercise.grade }}
-          </span>
-          <span class="meta-item">
-            <strong>Chương:</strong> {{ exercise.chapter }}
-          </span>
-          <span class="meta-item">
-            <strong>Thời gian:</strong> {{ exercise.timeLimit }} phút
-          </span>
-          <span class="meta-item">
-            <strong>Điểm tối đa:</strong> {{ exercise.maxScore }}
-          </span>
-          <span class="meta-item">
-            <strong>Số câu hỏi:</strong> {{ exercise.questions.length }}
-          </span>
-          <span class="meta-item" [class.published]="exercise.isPublished" [class.draft]="!exercise.isPublished">
-            <strong>Trạng thái:</strong> {{ exercise.isPublished ? 'Đã xuất bản' : 'Bản nháp' }}
-          </span>
-        </div>
-        <div class="exercise-dates" *ngIf="exercise.createdAt || exercise.publishedAt">
-          <div class="date-item" *ngIf="exercise.createdAt">
-            <span class="date-label">Tạo lúc:</span>
-            <span class="date-value">{{ formatDate(exercise.createdAt) }}</span>
-          </div>
-          <div class="date-item" *ngIf="exercise.publishedAt">
-            <span class="date-label">Xuất bản:</span>
-            <span class="date-value">{{ formatDate(exercise.publishedAt) }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="exercise-actions">
-        <button class="btn btn-outline" (click)="editExercise()" *ngIf="!isSubmitted">
-          ✏️ Chỉnh sửa
-        </button>
-        <button class="btn btn-secondary" (click)="backToExerciseList()">
-          ← Quay lại
-        </button>
-      </div>
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Đang tải bài tập...</p>
     </div>
 
-    <!-- Results Summary (shown after submission) -->
-    <div *ngIf="isSubmitted" class="results-summary">
-      <div class="results-card">
-        <h2>Kết quả bài tập</h2>
-        <div class="score-display">
-          <div class="score-circle">
-            <span class="score-number">{{ score }}</span>
-            <span class="score-total">/ {{ exercise.maxScore }}</span>
-          </div>
-          <div class="score-percentage">
-            {{ Math.round((score / exercise.maxScore) * 100) }}%
+    <!-- Exercise Content -->
+    <div *ngIf="!isLoading && exercise" class="exercise-content">
+      <!-- Header -->
+      <div class="exercise-header">
+        <div class="exercise-info">
+          <h1>{{ exercise.title }}</h1>
+          <p class="exercise-description">{{ exercise.description }}</p>
+          <div class="exercise-meta">
+            <span class="meta-item">
+              <strong>Số câu hỏi:</strong> {{ exercise.totalQuestions || exercise.questions.length }}
+            </span>
+            <span class="meta-item published">
+              <strong>Trạng thái:</strong> Đã xuất bản
+            </span>
           </div>
         </div>
-        <div class="results-actions">
-          <button class="btn btn-primary" (click)="retakeExercise()">
-            Làm lại bài tập
-          </button>
+        <div class="exercise-actions">
           <button class="btn btn-secondary" (click)="backToExerciseList()">
-            Quay lại danh sách
+            ← Quay lại
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- Question Navigation -->
-    <div *ngIf="!isSubmitted" class="question-navigation">
-      <h3>Câu hỏi {{ currentQuestionIndex + 1 }} / {{ totalQuestions }}</h3>
-      <div class="question-dots">
-        <button 
-          *ngFor="let question of exercise.questions; let i = index"
-          class="question-dot"
-          [class.active]="i === currentQuestionIndex"
-          [class.answered]="(userAnswers[question.id] && userAnswers[question.id].length) > 0"
-          (click)="goToQuestion(i)"
-        >
-          {{ i + 1 }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Current Question -->
-    <div *ngIf="!isSubmitted && getCurrentQuestion()" class="question-container">
-      <div class="question-content">
-        <div class="question-text">
-          <h3>{{ getCurrentQuestion()?.content }}</h3>
-          <div *ngIf="getCurrentQuestion()?.imageUrl" class="question-image">
-            <img [src]="getCurrentQuestion()?.imageUrl" alt="Ảnh minh họa">
+      <!-- Questions List -->
+      <div class="questions-list">
+        <h2>Danh sách câu hỏi</h2>
+        <div *ngFor="let question of exercise.questions; let i = index" class="question-item">
+          <div class="question-header">
+            <h3>Câu {{ i + 1 }}: {{ question.content }}</h3>
+            <span class="question-type">{{ question.type === 'multiple' ? 'Nhiều đáp án' : 'Một đáp án' }}</span>
           </div>
-        </div>
+          
+          <div *ngIf="question.imageUrl" class="question-image">
+            <img [src]="getImageUrl(question.imageUrl)" alt="Ảnh minh họa câu {{ i + 1 }}">
+          </div>
 
-        <div class="answer-options">
-          <div 
-            *ngFor="let option of getCurrentQuestion()?.options; let i = index"
-            class="option-item"
-            [class.selected]="isAnswerSelected(getCurrentQuestion()?.id || '', option.id)"
-            [class.correct]="getUserAnswerStatus(getCurrentQuestion()?.id || '', option.id) === 'correct'"
-            [class.incorrect]="getUserAnswerStatus(getCurrentQuestion()?.id || '', option.id) === 'incorrect'"
-            (click)="selectAnswer(getCurrentQuestion()?.id || '', option.id, getCurrentQuestion()?.type === 'multiple')"
-          >
-            <div class="option-content">
-              <span class="option-letter">{{ getOptionLetter(i) }})</span>
-              <span class="option-text">{{ option.content }}</span>
-              <span *ngIf="isSubmitted && option.isCorrect" class="correct-indicator">✓</span>
+          <div class="answer-options">
+            <div *ngFor="let option of question.options; let j = index" class="option-item">
+              <div class="option-content">
+                <span class="option-letter">{{ getOptionLetter(j) }})</span>
+                <span class="option-text">{{ option.content }}</span>
+                <span *ngIf="option.isCorrect" class="correct-indicator">✓</span>
+              </div>
             </div>
           </div>
+
+          <div *ngIf="question.explanation" class="question-explanation">
+            <strong>Giải thích:</strong> {{ question.explanation }}
+          </div>
         </div>
       </div>
-
-      <!-- Question Navigation Controls -->
-      <div class="question-controls">
-        <button 
-          class="btn btn-secondary"
-          (click)="previousQuestion()"
-          [disabled]="currentQuestionIndex === 0"
-        >
-          ← Câu trước
-        </button>
-        
-        <button 
-          class="btn btn-primary"
-          (click)="nextQuestion()"
-          [disabled]="currentQuestionIndex === totalQuestions - 1"
-        >
-          Câu sau →
-        </button>
-      </div>
     </div>
-
-    <!-- Submit Button -->
-    <div *ngIf="!isSubmitted" class="submit-section">
-      <button class="btn btn-success btn-large" (click)="submitExercise()">
-        Nộp bài tập
-      </button>
-    </div>
-  </div>
   </div>
 </app-layout>

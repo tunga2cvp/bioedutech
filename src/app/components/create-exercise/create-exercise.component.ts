@@ -257,7 +257,7 @@ export class CreateExerciseComponent implements OnInit {
     this.apiService.createTest(testData).subscribe({
       next: (result) => {
         console.log('✅ Bài tập đã được tạo thành công trên server:', result);
-        alert(`✅ Tạo bài tập thành công!\n\n📝 Tên: ${testData.exam_name}\n📊 Số câu hỏi: ${testData.questions.length}\n🆔 ID: ${result.server_test_id}\n📅 Thời gian: ${new Date(result.created_at).toLocaleString()}`);
+        alert(`✅ Tạo bài tập thành công!\n\n📝 Tên: ${testData.exam_name}\n📊 Số câu hỏi: ${testData.questions.length}\n🆔 ID: ${String(result.id)}\n📅 Thời gian: ${new Date(result.created_at).toLocaleString()}`);
         this.router.navigate(['/exercise-list']);
       },
       error: (error) => {
