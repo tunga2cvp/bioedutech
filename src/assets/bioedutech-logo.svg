@@ -1,0 +1,39 @@
+<svg viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Human head outline -->
+  <path d="M20 25 Q20 10 35 10 Q50 10 50 25 Q50 40 35 40 Q20 40 20 25 Z" 
+        stroke="#2E7D32" 
+        stroke-width="2" 
+        fill="none"/>
+  
+  <!-- Brain -->
+  <path d="M25 20 Q25 15 30 15 Q35 15 35 20 Q35 25 30 25 Q25 25 25 20 Z" 
+        fill="#A5D6A7" 
+        stroke="#2E7D32" 
+        stroke-width="1"/>
+  
+  <!-- Brain folds -->
+  <path d="M27 18 Q29 16 31 18" stroke="#2E7D32" stroke-width="0.5" fill="none"/>
+  <path d="M27 22 Q29 20 31 22" stroke="#2E7D32" stroke-width="0.5" fill="none"/>
+  
+  <!-- AI Chip -->
+  <rect x="40" y="18" width="8" height="8" 
+        fill="#A5D6A7" 
+        stroke="#2E7D32" 
+        stroke-width="1"/>
+  
+  <!-- AI text -->
+  <text x="44" y="24" font-family="Arial, sans-serif" font-size="4" font-weight="bold" fill="#2E7D32" text-anchor="middle">AI</text>
+  
+  <!-- Connection nodes -->
+  <circle cx="50" cy="20" r="1.5" fill="#2E7D32"/>
+  <circle cx="50" cy="24" r="1.5" fill="#2E7D32"/>
+  <circle cx="50" cy="28" r="1.5" fill="#2E7D32"/>
+  
+  <!-- Connection lines -->
+  <line x1="48" y1="20" x2="50" y2="20" stroke="#2E7D32" stroke-width="1"/>
+  <line x1="48" y1="24" x2="50" y2="24" stroke="#2E7D32" stroke-width="1"/>
+  <line x1="48" y1="28" x2="50" y2="28" stroke="#2E7D32" stroke-width="1"/>
+  
+  <!-- BioEduTech text -->
+  <text x="100" y="35" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#2E7D32">BioEduTech</text>
+</svg>

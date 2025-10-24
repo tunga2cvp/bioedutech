@@ -1,0 +1,129 @@
+<div class="layout-container">
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-content">
+      <div class="logo-section">
+        <a (click)="goToHome()" class="logo">
+          <img src="assets/bioedutech-logo.svg" alt="BioEduTech Logo" class="logo-icon">
+        </a>
+      </div>
+
+      <nav class="main-nav" *ngIf="isLoggedIn">
+        <ul class="nav-list">
+          <li class="nav-item" *ngIf="currentUser?.role === 'teacher'">
+            <a (click)="goToDashboard()" 
+               class="nav-link" 
+               [class.active]="isActiveRoute('/teacher-dashboard')">
+              <span class="nav-icon">📊</span>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="currentUser?.role === 'teacher'">
+            <a (click)="goToCreateExercise()" 
+               class="nav-link" 
+               [class.active]="isActiveRoute('/create-exercise')">
+              <span class="nav-icon">➕</span>
+              <span class="nav-text">Tạo Bài Tập</span>
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="currentUser?.role === 'teacher'">
+            <a (click)="goToExerciseList()" 
+               class="nav-link" 
+               [class.active]="isActiveRoute('/exercise-list')">
+              <span class="nav-icon">📚</span>
+              <span class="nav-text">Quản Lý Bài Tập</span>
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="currentUser?.role === 'teacher'">
+            <a (click)="goToStudentManagement()" 
+               class="nav-link" 
+               [class.active]="isActiveRoute('/teacher/students')">
+              <span class="nav-icon">👥</span>
+              <span class="nav-text">Quản Lý Học Sinh</span>
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="currentUser?.role === 'teacher'">
+            <a (click)="goToApiTest()" 
+               class="nav-link" 
+               [class.active]="isActiveRoute('/api-test')">
+              <span class="nav-icon">🔧</span>
+              <span class="nav-text">Test API</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a (click)="goToParseDemo()" 
+               class="nav-link" 
+               [class.active]="isActiveRoute('/parse-demo')">
+              <span class="nav-icon">🔧</span>
+              <span class="nav-text">Demo Parse</span>
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="currentUser?.role === 'student'">
+            <a (click)="goToDashboard()" 
+               class="nav-link" 
+               [class.active]="isActiveRoute('/student-dashboard')">
+              <span class="nav-icon">📊</span>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div *ngIf="isLoggedIn" class="user-info">
+          <span class="user-name">{{ currentUser?.name }}</span>
+          <span class="user-role">{{ currentUser?.role === 'teacher' ? 'Giáo viên' : 'Học sinh' }}</span>
+        </div>
+        <button 
+          *ngIf="isLoggedIn" 
+          class="btn btn-outline btn-sm" 
+          (click)="logout()"
+        >
+          Đăng xuất
+        </button>
+        <button 
+          *ngIf="!isLoggedIn" 
+          class="btn btn-primary btn-sm" 
+          (click)="goToLogin()"
+        >
+          Đăng nhập
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <ng-content></ng-content>
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>BioEduTech</h4>
+        <p>Nền tảng học tập Sinh học trực tuyến cho học sinh THPT</p>
+      </div>
+      <div class="footer-section">
+        <h4>Liên kết nhanh</h4>
+        <ul>
+          <li><a (click)="goToHome()">Trang chủ</a></li>
+          <li><a (click)="goToLogin()">Đăng nhập</a></li>
+          <li *ngIf="currentUser?.role === 'teacher'"><a (click)="goToCreateExercise()">Tạo bài tập</a></li>
+          <li *ngIf="currentUser?.role === 'teacher'"><a (click)="goToExerciseList()">Quản lý bài tập</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Hỗ trợ</h4>
+        <ul>
+          <li><a href="#">Hướng dẫn sử dụng</a></li>
+          <li><a href="#">Liên hệ</a></li>
+          <li><a href="#">Báo lỗi</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 BioEduTech. Tất cả quyền được bảo lưu.</p>
+    </div>
+  </footer>
+</div>

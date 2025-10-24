@@ -1,0 +1,283 @@
+<app-layout>
+  <div class="create-exercise-container">
+    <!-- Header Section -->
+    <div class="page-header">
+      <div class="container">
+        <h1>{{ isEditMode ? 'Chỉnh Sửa Bài Tập' : 'Tạo Bài Tập Trắc Nghiệm' }}</h1>
+        <p>{{ isEditMode ? 'Cập nhật thông tin bài tập trắc nghiệm' : 'Thiết kế bài tập trắc nghiệm với câu hỏi có thể có ảnh minh họa' }}</p>
+      </div>
+    </div>
+
+    <div class="container">
+
+  <form [formGroup]="exerciseForm" class="exercise-form">
+    <!-- Thông tin cơ bản -->
+    <div class="form-section">
+      <h2>Thông tin cơ bản</h2>
+      <div class="form-group">
+        <label for="title">Tên bài tập *</label>
+        <input 
+          type="text" 
+          id="title" 
+          formControlName="title" 
+          placeholder="Nhập tên bài tập"
+          [class.invalid]="isFieldInvalid('title')"
+        >
+        <div class="error-message" *ngIf="isFieldInvalid('title')">
+          {{ getFieldError('title') }}
+        </div>
+      </div>
+
+
+    </div>
+
+    <!-- Thêm câu hỏi -->
+    <div class="form-section">
+      <h2>Câu hỏi trắc nghiệm</h2>
+      
+      <!-- Nhập câu hỏi theo format text -->
+      <div class="question-input-method">
+        <h3>Nhập câu hỏi theo format</h3>
+        <div class="format-example">
+          <p><strong>Format câu hỏi single choice:</strong></p>
+          <pre>avc?
+a) aaa
+b) bbb  
+c) ccc (đúng)</pre>
+          
+          <p><strong>Format câu hỏi multiple choice:</strong></p>
+          <pre>Chọn các đáp án đúng?
+a) aaa (đúng)
+b) bbb
+c) ccc (đúng)
+d) ddd</pre>
+        </div>
+
+        <div class="form-group">
+          <label for="questionsText">Nhập câu hỏi theo format trên:</label>
+          <textarea 
+            id="questionsText" 
+            [(ngModel)]="questionsText" 
+            placeholder="Nhập câu hỏi theo format đã hướng dẫn..."
+            rows="10"
+            [ngModelOptions]="{standalone: true}"
+            (input)="onQuestionsTextChange()"
+          ></textarea>
+          <div class="parse-actions">
+            <button type="button" class="btn btn-primary" (click)="parseQuestions()" [disabled]="!questionsText.trim()">
+              🔄 Parse Câu Hỏi
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="clearQuestionsText()" [disabled]="!questionsText.trim()">
+              🗑️ Xóa
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="parseResult" class="parse-result">
+          <div *ngIf="parseResult.errors.length > 0" class="parse-errors">
+            <h4>Lỗi parse:</h4>
+            <ul>
+              <li *ngFor="let error of parseResult.errors">{{ error }}</li>
+            </ul>
+          </div>
+          <div *ngIf="parseResult.questions.length > 0" class="parse-success">
+            <p>Đã parse thành công {{ parseResult.questions.length }} câu hỏi</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Thêm câu hỏi thủ công -->
+      <div class="manual-question-section">
+        <h3>Hoặc thêm câu hỏi thủ công</h3>
+        <button type="button" class="btn btn-primary" (click)="addManualQuestion()">
+          + Thêm Câu Hỏi
+        </button>
+      </div>
+
+      <!-- Danh sách câu hỏi -->
+      <div class="questions-list" *ngIf="questions.length > 0">
+        <h3>Danh sách câu hỏi ({{ questions.length }})</h3>
+        
+        <div class="question-item" *ngFor="let question of questions; let i = index">
+          <div class="question-header">
+            <h4>Câu {{ i + 1 }}</h4>
+            <div class="question-actions">
+              <select [(ngModel)]="question.type" (change)="changeQuestionType(i, question.type)" 
+                      [ngModelOptions]="{standalone: true}">
+                <option value="single">Single Choice</option>
+                <option value="multiple">Multiple Choice</option>
+              </select>
+              <button type="button" class="btn btn-danger btn-sm" (click)="removeQuestion(i)">
+                Xóa
+              </button>
+            </div>
+          </div>
+
+          <div class="question-content">
+            <div class="form-group">
+              <label>Nội dung câu hỏi:</label>
+              <textarea 
+                [(ngModel)]="question.content" 
+                placeholder="Nhập nội dung câu hỏi..."
+                rows="3"
+                [ngModelOptions]="{standalone: true}"
+              ></textarea>
+            </div>
+
+            <!-- Upload ảnh -->
+            <div class="image-upload">
+              <label>Ảnh minh họa (tùy chọn):</label>
+              <div class="image-upload-controls">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  (change)="onImageUpload($event, i)"
+                  #fileInput
+                >
+                <button type="button" class="btn btn-secondary btn-sm" (click)="fileInput.click()">
+                  Chọn ảnh
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-danger btn-sm" 
+                  (click)="removeImage(i)"
+                  *ngIf="question.imageUrl"
+                >
+                  Xóa ảnh
+                </button>
+              </div>
+              <div *ngIf="question.imageUrl" class="image-preview">
+                <img [src]="getImageUrl(question.imageUrl)" alt="Ảnh minh họa" (error)="onImageError($event)">
+              </div>
+            </div>
+
+            <!-- Đáp án -->
+            <div class="answer-options">
+              <label>Đáp án:</label>
+              <div class="options-list">
+                <div class="option-item" *ngFor="let option of question.options; let j = index">
+                  <div class="option-controls">
+                    <span class="option-letter">{{ getOptionLetter(j) }})</span>
+                    <input 
+                      type="checkbox" 
+                      [(ngModel)]="option.isCorrect"
+                      [ngModelOptions]="{standalone: true}"
+                      [disabled]="question.type === 'single' && option.isCorrect"
+                    >
+                    <label class="correct-label">Đúng</label>
+                    <button 
+                      type="button" 
+                      class="btn btn-danger btn-sm" 
+                      (click)="removeOption(i, j)"
+                      [disabled]="question.options.length <= 2"
+                    >
+                      Xóa
+                    </button>
+                  </div>
+                  <textarea 
+                    [(ngModel)]="option.content" 
+                    placeholder="Nhập nội dung đáp án..."
+                    rows="2"
+                    [ngModelOptions]="{standalone: true}"
+                  ></textarea>
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" (click)="addOption(i)">
+                + Thêm đáp án
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview và Actions -->
+    <div class="form-section">
+      <div class="preview-section">
+        <h3>Preview Bài Tập</h3>
+        <div class="preview-tabs">
+          <button 
+            type="button" 
+            class="tab-button" 
+            [class.active]="!showStudentPreview"
+            (click)="showStudentPreview = false"
+          >
+            📝 Thông tin bài tập
+          </button>
+          <button 
+            type="button" 
+            class="tab-button" 
+            [class.active]="showStudentPreview"
+            (click)="showStudentPreview = true"
+            [disabled]="questions.length === 0"
+          >
+            👨‍🎓 Góc nhìn học sinh
+          </button>
+        </div>
+      </div>
+
+      <div class="preview-content">
+        <!-- Teacher Preview -->
+        <div *ngIf="!showStudentPreview" class="teacher-preview">
+          <div class="preview-exercise">
+            <h4>{{ exerciseForm.get('title')?.value || 'Chưa có tên' }}</h4>
+            <div class="preview-meta">
+              <span class="meta-item"><strong>Số câu hỏi:</strong> {{ questions.length }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Preview -->
+        <div *ngIf="showStudentPreview" class="student-preview">
+          <div class="student-preview-header">
+            <h4>{{ exerciseForm.get('title')?.value || 'Chưa có tên' }}</h4>
+            <div class="student-meta">
+              <span>{{ questions.length }} câu hỏi</span>
+            </div>
+          </div>
+          
+          <div class="student-questions">
+            <div class="student-question" *ngFor="let question of questions; let i = index">
+              <div class="question-header">
+                <h5>Câu {{ i + 1 }}</h5>
+                <span class="question-type">{{ question.type === 'single' ? 'Chọn 1 đáp án' : 'Chọn nhiều đáp án' }}</span>
+              </div>
+              
+              <div class="question-content">
+                <p class="question-text">{{ question.content }}</p>
+                <div *ngIf="question.imageUrl" class="question-image">
+                  <img [src]="getImageUrl(question.imageUrl)" alt="Ảnh minh họa" (error)="onImageError($event)">
+                </div>
+                
+                <div class="answer-options">
+                  <div class="option-item" *ngFor="let option of question.options; let j = index">
+                    <div class="option-content">
+                      <span class="option-letter">{{ getOptionLetter(j) }})</span>
+                      <span class="option-text">{{ option.content }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="backToDashboard()">
+          Hủy
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="saveExercise()"
+          [disabled]="isSubmitting"
+        >
+          {{ isSubmitting ? 'Đang lưu...' : 'Lưu Bài Tập' }}
+        </button>
+      </div>
+      </div>
+    </form>
+    </div>
+  </div>
+</app-layout>

@@ -1,0 +1,132 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.login-title {
+  text-align: center;
+  margin-bottom: 24px;
+  
+  h1 {
+    color: #2e7d32;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  p {
+    color: #4caf50;
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.role-selection {
+  margin: 16px 0;
+  
+  mat-label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 500;
+    color: #424242;
+  }
+}
+
+.radio-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.radio-button {
+  flex: 1;
+  min-width: 120px;
+}
+
+.login-button {
+  margin-top: 16px;
+  height: 48px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  text-transform: none;
+}
+
+.login-footer {
+  text-align: center;
+  padding: 16px;
+  background-color: #f5f5f5;
+  
+  .demo-info, .teacher-info, .student-info {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    color: #666;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    code {
+      background-color: #e0e0e0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+  }
+  
+  .teacher-info {
+    color: #4caf50;
+    font-weight: 500;
+  }
+  
+  .student-info {
+    color: #2196F3;
+    font-weight: 500;
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .login-container {
+    padding: 10px;
+  }
+  
+  .login-title h1 {
+    font-size: 2rem;
+  }
+  
+  .radio-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .radio-button {
+    min-width: auto;
+  }
+}

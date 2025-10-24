@@ -1,0 +1,363 @@
+// Landing Page Styles
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+// Header Styles
+.header {
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+  }
+}
+
+.logo-section {
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    
+    .logo-icon {
+      width: 150px;
+      height: 50px;
+      object-fit: contain;
+    }
+    
+    .logo-text {
+      h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #333333;
+        line-height: 1.2;
+      }
+      
+      p {
+        margin: 5px 0 0 0;
+        font-size: 14px;
+        color: #666666;
+        line-height: 1.3;
+      }
+    }
+  }
+}
+
+.navigation {
+  display: flex;
+  gap: 10px;
+  
+  .nav-item {
+    padding: 12px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    
+    &.active {
+      background: #4CAF50;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    }
+    
+    &:not(.active) {
+      background: #ffffff;
+      color: #333333;
+      border-color: #e0e0e0;
+      
+      &:hover {
+        border-color: #4CAF50;
+        color: #4CAF50;
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
+
+// Auth Buttons Styles
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  
+  .btn {
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    
+    &.btn-outline {
+      background: #ffffff;
+      color: #4CAF50;
+      border-color: #4CAF50;
+      
+      &:hover {
+        background: #4CAF50;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+      }
+    }
+    
+    &.btn-primary {
+      background: #4CAF50;
+      color: #ffffff;
+      border-color: #4CAF50;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+      
+      &:hover {
+        background: #45a049;
+        border-color: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+      }
+    }
+  }
+}
+
+// Main Content Styles
+.main-content {
+  min-height: calc(100vh - 200px);
+  padding: 60px 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.welcome-section {
+  text-align: center;
+  
+  .welcome-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333333;
+    margin-bottom: 50px;
+    line-height: 1.3;
+  }
+}
+
+.content-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+  margin-bottom: 60px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.image-section {
+  flex: 1;
+  
+  .image-container {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    
+    .plant-illustration {
+      width: 200px;
+      height: 200px;
+      
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+}
+
+.text-section {
+  flex: 1;
+  text-align: left;
+  
+  .description {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #555555;
+    margin: 0;
+    
+    .leaf-icon {
+      font-size: 20px;
+      margin-left: 10px;
+    }
+  }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background: #ffffff;
+  border: 2px solid #4CAF50;
+  border-radius: 15px;
+  padding: 25px;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.15);
+  }
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333333;
+    margin: 0 0 10px 0;
+    line-height: 1.3;
+  }
+  
+  p {
+    font-size: 14px;
+    color: #666666;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+// Footer Styles
+.footer {
+  background: #f8f9fa;
+  padding: 30px 0;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
+  
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: #999999;
+    line-height: 1.5;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .header .container {
+    flex-direction: column;
+    gap: 20px;
+    padding: 15px;
+  }
+  
+  .navigation {
+    flex-wrap: wrap;
+    justify-content: center;
+    
+    .nav-item {
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+  }
+  
+  .auth-buttons {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    
+    .btn {
+      width: 100%;
+      min-width: auto;
+      padding: 10px 20px;
+      font-size: 13px;
+    }
+  }
+  
+  .welcome-title {
+    font-size: 24px;
+    margin-bottom: 30px;
+  }
+  
+  .content-wrapper {
+    flex-direction: column;
+    gap: 30px;
+    text-align: center;
+  }
+  
+  .text-section {
+    text-align: center;
+    
+    .description {
+      font-size: 16px;
+    }
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .feature-card {
+    padding: 20px;
+    
+    h3 {
+      font-size: 16px;
+    }
+    
+    p {
+      font-size: 13px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 15px;
+  }
+  
+  .logo .logo-icon {
+    width: 120px;
+    height: 40px;
+  }
+  
+  .logo .logo-text h1 {
+    font-size: 20px;
+  }
+  
+  .logo .logo-text p {
+    font-size: 12px;
+  }
+  
+  .welcome-title {
+    font-size: 20px;
+  }
+  
+  .image-container {
+    padding: 20px;
+    min-height: 200px;
+    
+    .plant-illustration {
+      width: 150px;
+      height: 150px;
+    }
+  }
+  
+  .description {
+    font-size: 14px;
+  }
+}

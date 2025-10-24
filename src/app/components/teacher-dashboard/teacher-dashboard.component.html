@@ -1,0 +1,133 @@
+<app-layout>
+  <div class="teacher-dashboard-container">
+    <div class="page-header">
+      <h1>Xin chào, {{ currentTeacher?.name }}!</h1>
+      <p>{{ currentTeacher?.subject }} - {{ currentTeacher?.school }}</p>
+    </div>
+
+    <div class="dashboard-content">
+    <!-- Quick Stats -->
+    <section class="stats-section">
+      <h2>Thống kê nhanh</h2>
+      <div class="stats-grid" *ngIf="!isLoadingStats; else loadingTemplate">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <mat-icon>group</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h3>{{ totalStudents }}</h3>
+            <p>Tổng số học sinh</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <mat-icon>assignment</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h3>{{ totalAssignments }}</h3>
+            <p>Bài tập đã tạo</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <mat-icon>quiz</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h3>{{ totalQuizzes }}</h3>
+            <p>Đề thi đã xuất bản</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <mat-icon>trending_up</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h3>{{ averageScore }}%</h3>
+            <p>Điểm trung bình lớp</p>
+          </div>
+        </div>
+      </div>
+      
+      <ng-template #loadingTemplate>
+        <div class="loading-stats">
+          <mat-icon>refresh</mat-icon>
+          <p>Đang tải thống kê...</p>
+        </div>
+      </ng-template>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="actions-section">
+      <h2>Thao tác nhanh</h2>
+      <div class="actions-grid">
+        <button mat-raised-button class="action-button" (click)="createExercise()">
+          <mat-icon>add</mat-icon>
+          <span>Tạo bài tập trắc nghiệm</span>
+        </button>
+        
+        <button mat-raised-button class="action-button" (click)="viewExerciseList()">
+          <mat-icon>list</mat-icon>
+          <span>Quản lý bài tập</span>
+        </button>
+        
+        <button mat-raised-button class="action-button" (click)="manageStudents()">
+          <mat-icon>group_add</mat-icon>
+          <span>Quản lý học sinh</span>
+        </button>
+        
+        <button mat-raised-button class="action-button" (click)="viewReports()">
+          <mat-icon>assessment</mat-icon>
+          <span>Xem báo cáo</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section class="activity-section">
+      <h2>Hoạt động gần đây</h2>
+      <div class="activity-list">
+        <div class="activity-item" *ngFor="let activity of recentActivities">
+          <div class="activity-icon">
+            <mat-icon>{{ activity.icon }}</mat-icon>
+          </div>
+          <div class="activity-content">
+            <h4>{{ activity.title }}</h4>
+            <p>{{ activity.description }}</p>
+            <span class="activity-time">{{ activity.time }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Class Overview -->
+    <section class="class-section">
+      <h2>Lớp học của tôi</h2>
+      <div class="class-cards">
+        <div class="class-card" *ngFor="let class of teacherClasses">
+          <div class="class-header">
+            <h3>{{ class.name }}</h3>
+            <span class="class-grade">{{ class.grade }}</span>
+          </div>
+          <div class="class-stats">
+            <div class="class-stat">
+              <mat-icon>group</mat-icon>
+              <span>{{ class.studentCount }} học sinh</span>
+            </div>
+            <div class="class-stat">
+              <mat-icon>assignment</mat-icon>
+              <span>{{ class.assignmentCount }} bài tập</span>
+            </div>
+          </div>
+          <div class="class-actions">
+            <button mat-button (click)="viewClass(class.id)">Xem chi tiết</button>
+            <button mat-button color="primary" (click)="manageClass(class.id)">Quản lý</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    </div>
+  </div>
+</app-layout>

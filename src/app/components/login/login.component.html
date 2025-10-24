@@ -1,0 +1,51 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title class="login-title">
+        <h1>BioEduTech</h1>
+        <p>Hệ thống thi trắc nghiệm sinh học</p>
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form (ngSubmit)="onSubmit()" class="login-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tên đăng nhập</mat-label>
+          <input matInput [(ngModel)]="username" name="username" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mật khẩu</mat-label>
+          <input matInput type="password" [(ngModel)]="password" name="password" required>
+        </mat-form-field>
+
+        <div class="role-selection">
+          <mat-label>Chọn vai trò:</mat-label>
+          <mat-radio-group [(ngModel)]="userRole" name="userRole" class="radio-group">
+            <mat-radio-button value="student" class="radio-button">Học sinh</mat-radio-button>
+            <mat-radio-button value="teacher" class="radio-button">Giáo viên</mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <button mat-raised-button color="primary" type="submit" 
+                class="login-button full-width" 
+                [disabled]="isLoading">
+          <span *ngIf="!isLoading">Đăng nhập</span>
+          <span *ngIf="isLoading">Đang đăng nhập...</span>
+        </button>
+      </form>
+    </mat-card-content>
+
+    <mat-card-footer class="login-footer">
+      <p class="demo-info">
+        <strong>Demo:</strong> Mật khẩu mặc định là <code>123456</code>
+      </p>
+      <p class="teacher-info">
+        <strong>Giáo viên:</strong> Username: <code>giaovien</code> | Password: <code>123456</code>
+      </p>
+      <p class="student-info">
+        <strong>Học sinh:</strong> Tài khoản được tạo bởi giáo viên
+      </p>
+    </mat-card-footer>
+  </mat-card>
+</div>

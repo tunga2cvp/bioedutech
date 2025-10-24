@@ -1,0 +1,353 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+
+// API Models
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+export interface ApiAuthResponse {
+  success: boolean;
+  message: string;
+  user: {
+    id: number;
+    username: string;
+    email: string;
+  };
+}
+
+export interface ApiErrorResponse {
+  error: string;
+  message: string;
+  statusCode: number;
+}
+
+// Correct Test Creation API Models based on Swagger docs
+export interface TestCreationRequest {
+  exam_name: string;
+  questions: TestQuestionRequest[];
+}
+
+export interface TestQuestionRequest {
+  content: string;
+  answers: string[];
+  correct_answers: number[];
+  image?: string;
+}
+
+export interface TestCreationResponse {
+  result: string;
+  message: string;
+  test_id: string;
+  server_test_id: string;
+  created_at: string;
+  status: string;
+  total_questions: number;
+  max_score: number;
+  time_limit: number;
+}
+
+// Test List API Models
+export interface TestListItem {
+  test_id: string;
+  exam_name: string;
+  created_at: string;
+  status: string;
+  total_questions: number;
+  description?: string;
+  grade?: number;
+  time_limit?: number;
+  max_score?: number;
+  questions?: any[];
+  retry_limit?: number;
+  show_answers_after_submit?: boolean;
+  start_date?: string;
+  end_date?: string;
+  assigned_classes?: string[];
+  created_by?: string;
+}
+
+export interface TestListResponse {
+  exams: TestListItem[];  // Changed from 'tests' to 'exams' to match new API response
+  count: number;          // Changed from 'total' to 'count' to match new API response
+  page?: number;          // Made optional as it might not be in response
+  limit?: number;         // Made optional as it might not be in response
+  success: boolean;       // Added success field from new API response
+}
+
+// Test Detail API Models
+export interface TestDetailQuestion {
+  question_id: string;
+  content: string;
+  answers: string[];
+  correct_answers: number[];
+  image?: string;
+  explanation?: string;
+  order?: number;
+}
+
+export interface TestDetailResponse {
+  test_id: string;
+  exam_name: string;
+  description?: string;
+  grade?: number;
+  time_limit?: number;
+  max_score?: number;
+  questions: TestDetailQuestion[];
+  created_at: string;
+  status: string;
+  retry_limit?: number;
+  show_answers_after_submit?: boolean;
+  start_date?: string;
+  end_date?: string;
+  assigned_classes?: string[];
+  created_by?: string;
+}
+
+// Legacy interfaces for backward compatibility
+export interface TestSubmissionData {
+  test_data: {
+    student_id: string;
+    test_id: string;
+    answers: AnswerSubmission[];
+    total_time: number;
+  };
+}
+
+export interface AnswerSubmission {
+  question_id: string;
+  selected_options: string[];
+  time_spent: number;
+}
+
+export interface TestResult {
+  result: string;
+  score: number;
+  max_score: number;
+  correct_answers: number;
+  total_questions: number;
+  submission_id: string;
+  submitted_at?: string;
+  detailed_results?: QuestionResult[];
+}
+
+export interface QuestionResult {
+  question_id: string;
+  is_correct: boolean;
+  selected_options: string[];
+  correct_options: string[];
+  explanation?: string;
+}
+
+// Student Registration Excel API Models
+export interface ExcelRegistrationResponse {
+  created: number;
+  created_items: CreatedStudent[];
+  success: boolean;
+}
+
+export interface CreatedStudent {
+  id: number;
+  name: string;
+  username: string;
+}
+
+export interface ImageUploadResponse {
+  success: boolean;
+  path: string; // Đường dẫn ảnh từ server
+  filename?: string;
+  message?: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ApiService {
+  private baseUrl = 'https://chimeara.pythonanywhere.com';
+
+  constructor(private http: HttpClient) {}
+
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'Có lỗi xảy ra!';
+    
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      errorMessage = `Lỗi: ${error.error.message}`;
+    } else {
+      // Server-side error
+      switch (error.status) {
+        case 400:
+          errorMessage = 'Dữ liệu không hợp lệ';
+          break;
+        case 401:
+          errorMessage = 'Tên đăng nhập hoặc mật khẩu không đúng';
+          break;
+        case 403:
+          errorMessage = 'Truy cập bị từ chối';
+          break;
+        case 404:
+          errorMessage = 'Không tìm thấy tài khoản';
+          break;
+        case 500:
+          errorMessage = 'Lỗi máy chủ';
+          break;
+        default:
+          errorMessage = `Lỗi ${error.status}: ${error.message}`;
+      }
+    }
+    
+    return throwError(() => new Error(errorMessage));
+  }
+
+  // Login API call for students
+  loginStudent(credentials: LoginCredentials): Observable<ApiAuthResponse> {
+    return this.http.post<ApiAuthResponse>(`${this.baseUrl}/login`, credentials, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Test creation API call (correct format) - Updated to use /exams endpoint
+  createTest(testData: TestCreationRequest): Observable<TestCreationResponse> {
+    return this.http.post<TestCreationResponse>(`${this.baseUrl}/exams`, testData, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get tests list API call - Updated to use /exams endpoint
+  getTests(page: number = 1, limit: number = 10): Observable<TestListResponse> {
+    const params = new URLSearchParams();
+    params.set('page', page.toString());
+    params.set('limit', limit.toString());
+
+    return this.http.get<TestListResponse>(`${this.baseUrl}/exams?${params.toString()}`, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get test detail API call - Updated to use /exams endpoint
+  getTestDetail(testId: string): Observable<TestDetailResponse> {
+    return this.http.get<TestDetailResponse>(`${this.baseUrl}/exams/${testId}`, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Test submission API call (legacy) - Updated to use /exams endpoint
+  submitTest(testData: TestSubmissionData): Observable<TestResult> {
+    return this.http.post<TestResult>(`${this.baseUrl}/exams`, testData, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Upload ảnh lên server và nhận đường dẫn trả về
+  uploadImage(file: File): Observable<ImageUploadResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    console.log('📤 Uploading image to server:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type
+    });
+
+    // Không set Content-Type header để Angular tự động set với boundary
+    return this.http.post<ImageUploadResponse>(`${this.baseUrl}/images`, formData).pipe(
+      tap((response: ImageUploadResponse) => {
+        console.log('✅ Image uploaded successfully:', response);
+      }),
+      catchError(error => {
+        console.error('❌ Error uploading image:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // Debug method để test API upload ảnh
+  debugUploadImage(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    console.log('🔍 Debug upload image:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      formDataKeys: ['file'], // Fixed: FormData.keys() không có trong TypeScript
+      url: `${this.baseUrl}/images`
+    });
+
+    return this.http.post(`${this.baseUrl}/images`, formData, {
+      observe: 'response' // Để xem full response
+    }).pipe(
+      tap(response => {
+        console.log('🔍 Debug response:', {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+          body: response.body
+        });
+      }),
+      catchError(error => {
+        console.error('🔍 Debug error:', {
+          status: error.status,
+          statusText: error.statusText,
+          error: error.error,
+          message: error.message
+        });
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // Lấy ảnh từ server theo filename
+  getImage(filename: string): Observable<Blob> {
+    console.log('📥 Getting image from server:', {
+      filename: filename,
+      url: `${this.baseUrl}/images/${filename}`
+    });
+
+    return this.http.get(`${this.baseUrl}/images/${filename}`, {
+      responseType: 'blob'
+    }).pipe(
+      tap(() => {
+        console.log('✅ Image retrieved successfully:', filename);
+      }),
+      catchError(error => {
+        console.error('❌ Error getting image:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // Tạo URL cho ảnh từ server
+  getImageUrl(filename: string): string {
+    return `${this.baseUrl}/images/${filename}`;
+  }
+
+  // Student Registration Excel API call
+  registerStudentsExcel(file: File): Observable<ExcelRegistrationResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<ExcelRegistrationResponse>(`${this.baseUrl}/register_excel`, formData).pipe(
+      catchError(this.handleError)
+    );
+  }
+}
