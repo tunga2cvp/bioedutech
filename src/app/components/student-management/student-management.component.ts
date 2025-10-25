@@ -18,6 +18,7 @@ import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { ExcelService } from '../../services/excel.service';
 import { StudentManagementService } from '../../services/student-management.service';
+import { ApiService, User } from '../../services/api.service';
 import { TeacherHeaderComponent } from '../teacher-header/teacher-header.component';
 import { StudentFooterComponent } from '../student-footer/student-footer.component';
 import { StudentUser } from '../../models/user.model';
@@ -51,17 +52,19 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
   isDragOver = false;
   isUploading = false;
   
-  students: StudentUser[] = [];
-  filteredStudents: StudentUser[] = [];
+  students: User[] = [];
+  filteredStudents: User[] = [];
   searchTerm = '';
+  isLoading = false;
   
   
-  displayedColumns: string[] = ['name', 'username', 'status', 'actions'];
+  displayedColumns: string[] = ['name', 'username', 'actions'];
 
   constructor(
     private authService: AuthService,
     private excelService: ExcelService,
     private studentManagementService: StudentManagementService,
+    private apiService: ApiService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {}
@@ -76,9 +79,37 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
   }
 
   private loadStudents(): void {
-    // Load students from StudentManagementService
-    this.students = this.studentManagementService.getStoredStudents();
-    this.filteredStudents = [...this.students];
+    this.isLoading = true;
+    
+    // Load students from API
+    this.apiService.getStudents()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            // Filter out teachers, only keep students
+            this.students = (response.users || []).filter(user => user.role === 'student');
+            this.filteredStudents = [...this.students];
+            console.log('✅ Students loaded from API:', {
+              count: response.count,
+              students: this.students.length,
+              filtered: this.students.length
+            });
+          } else {
+            this.snackBar.open('Không thể tải danh sách học sinh', 'Đóng', {
+              duration: 3000
+            });
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('❌ Error loading students:', error);
+          this.snackBar.open('Lỗi khi tải danh sách học sinh: ' + error.message, 'Đóng', {
+            duration: 3000
+          });
+          this.isLoading = false;
+        }
+      });
   }
 
   goBack(): void {
@@ -205,27 +236,27 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
   filterStudents(): void {
     this.filteredStudents = this.students.filter(student => {
       const matchesSearch = !this.searchTerm || 
-        student.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        (student.name && student.name.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
         student.username.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        student.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        student.studentId.toLowerCase().includes(this.searchTerm.toLowerCase());
+        (student.email && student.email.toLowerCase().includes(this.searchTerm.toLowerCase()));
       
       return matchesSearch;
     });
   }
 
-  editStudent(student: StudentUser): void {
-    this.snackBar.open(`Chỉnh sửa thông tin ${student.name}`, 'Đóng', {
+  editStudent(student: User): void {
+    const studentName = student.name || student.username || 'học sinh';
+    this.snackBar.open(`Chỉnh sửa thông tin ${studentName}`, 'Đóng', {
       duration: 2000
     });
     // TODO: Open edit dialog
   }
 
-  deleteStudent(student: StudentUser): void {
-    if (confirm(`Bạn có chắc chắn muốn xóa học sinh ${student.name}?`)) {
-      this.studentManagementService.deleteStudent(student.id);
-      this.loadStudents();
-      this.snackBar.open(`Đã xóa học sinh ${student.name}`, 'Đóng', {
+  deleteStudent(student: User): void {
+    const studentName = student.name || student.username || 'học sinh';
+    if (confirm(`Bạn có chắc chắn muốn xóa học sinh ${studentName}?`)) {
+      // TODO: Implement delete API call
+      this.snackBar.open(`Chức năng xóa học sinh sẽ được cập nhật`, 'Đóng', {
         duration: 2000
       });
     }

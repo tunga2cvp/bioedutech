@@ -1,21 +1,21 @@
 // Base User Interface
 export interface BaseUser {
-  id: string;
+  id: number | string;
   username: string;
-  email: string;
+  email?: string;
   role: 'teacher' | 'student';
   name: string;
-  createdAt: Date;
-  isActive: boolean;
+  createdAt?: Date;
+  isActive?: boolean;
 }
 
 // Student User Interface
 export interface StudentUser extends BaseUser {
   role: 'student';
-  grade: 10 | 11 | 12;
-  school: string;
-  class: string;
-  studentId: string;
+  grade?: 10 | 11 | 12;
+  school?: string;
+  class?: string;
+  studentId?: string;
   password?: string; // Optional password field
 }
 
