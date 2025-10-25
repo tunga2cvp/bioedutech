@@ -55,8 +55,8 @@
       </div>
       
       <div class="user-actions">
-        <button class="action-btn logout-btn" (click)="logout()" title="Đăng xuất">
-          🚪
+        <button class="action-btn logout-btn" (click)="logout()" title="Đăng xuất" mat-icon-button>
+          <mat-icon>logout</mat-icon>
         </button>
       </div>
     </div>
@@ -64,7 +64,7 @@
     <!-- Login Button (when not logged in) -->
     <div class="login-section" *ngIf="!isLoggedIn">
       <button class="login-btn" (click)="goToHome()">
-        🔑
+        <mat-icon>login</mat-icon>
         Đăng nhập
       </button>
     </div>
