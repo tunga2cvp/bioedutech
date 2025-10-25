@@ -17,35 +17,46 @@
 
   <!-- Exam Content -->
   <div *ngIf="exam && !isLoading && !error" class="exam-content">
-    <!-- Exam Header -->
-    <div class="exam-header">
-      <div class="exam-info">
+    <!-- Exam Header - Compact -->
+    <div class="exam-header-compact">
+      <div class="exam-title-section">
         <h1 class="exam-title">{{ exam.exam_name }}</h1>
-        <p *ngIf="exam.description" class="exam-description">{{ exam.description }}</p>
+      </div>
+      
+      <div class="exam-info-row">
+        <div class="info-item">
+          <span class="info-label">
+            <mat-icon class="info-icon">assignment</mat-icon>
+            {{ getTotalQuestions() }} câu
+          </span>
+        </div>
         
-        <div class="exam-meta">
-          <div class="meta-item">
-            <i class="meta-icon">📝</i>
-            <span>{{ getTotalQuestions() }} câu hỏi</span>
-          </div>
-          
-          <div *ngIf="exam.time_limit" class="meta-item">
-            <i class="meta-icon">⏱️</i>
-            <span>Thời gian: {{ exam.time_limit }} phút</span>
-          </div>
-          
-          <div *ngIf="exam.max_score" class="meta-item">
-            <i class="meta-icon">🎯</i>
-            <span>Tổng điểm: {{ exam.max_score }}</span>
-          </div>
+        <div *ngIf="exam.time_limit" class="info-item">
+          <span class="info-label">
+            <mat-icon class="info-icon">schedule</mat-icon>
+            {{ exam.time_limit }} phút
+          </span>
+        </div>
+        
+        <div *ngIf="exam.max_score" class="info-item">
+          <span class="info-label">
+            <mat-icon class="info-icon">grade</mat-icon>
+            {{ exam.max_score }} điểm
+          </span>
         </div>
       </div>
       
       <!-- Timer -->
       <div *ngIf="timeRemaining > 0" class="timer-container">
-        <div class="timer" [ngClass]="{ 'timer-warning': timeRemaining <= 300, 'timer-danger': timeRemaining <= 60 }">
-          <i class="timer-icon">⏰</i>
+        <div class="timer" [ngClass]="{ 
+          'timer-warning': timerStatus === 'warning', 
+          'timer-critical': timerStatus === 'critical',
+          'timer-normal': timerStatus === 'running'
+        }">
+          <mat-icon class="timer-icon">schedule</mat-icon>
           <span class="timer-text">{{ formatTime(timeRemaining) }}</span>
+          <span *ngIf="timerStatus === 'critical'" class="timer-label">🔴 Sắp hết giờ</span>
+          <span *ngIf="timerStatus === 'warning'" class="timer-label">⚠️ Sắp nộp bài</span>
         </div>
       </div>
     </div>
@@ -63,92 +74,128 @@
       </div>
     </div>
 
-    <!-- Question Navigation -->
-    <div class="question-nav">
-      <div class="nav-buttons">
-        <button 
-          class="nav-btn" 
-          [disabled]="currentQuestionIndex === 0"
-          (click)="previousQuestion()"
-        >
-          ‹ Câu trước
-        </button>
+    <!-- Main Content - Two Column Layout -->
+    <div class="exam-main-layout">
+      <!-- Left Sidebar - Question Navigation -->
+      <div class="questions-sidebar">
+        <div class="nav-buttons">
+          <button 
+            class="nav-btn-prev" 
+            [disabled]="currentQuestionIndex === 0"
+            (click)="previousQuestion()"
+            title="Câu trước"
+          >
+            ‹
+          </button>
+          
+          <button 
+            class="nav-btn-next" 
+            [disabled]="currentQuestionIndex === getTotalQuestions() - 1"
+            (click)="nextQuestion()"
+            title="Câu sau"
+          >
+            ›
+          </button>
+        </div>
         
-        <button 
-          class="nav-btn" 
-          [disabled]="currentQuestionIndex === getTotalQuestions() - 1"
-          (click)="nextQuestion()"
-        >
-          Câu sau ›
-        </button>
+        <div class="questions-grid">
+          <button 
+            *ngFor="let question of exam.questions; let i = index"
+            class="question-number"
+            [ngClass]="{ 
+              'active': currentQuestionIndex === i,
+              'answered': answers[i] && answers[i].selectedAnswers.length > 0
+            }"
+            (click)="goToQuestion(i)"
+            [title]="'Câu ' + (i + 1)"
+          >
+            {{ i + 1 }}
+          </button>
+        </div>
       </div>
-      
-      <div class="question-numbers">
-        <button 
-          *ngFor="let question of exam.questions; let i = index"
-          class="question-number"
-          [ngClass]="{ 
-            'active': currentQuestionIndex === i,
-            'answered': answers[i] && answers[i].selectedAnswers.length > 0
-          }"
-          (click)="goToQuestion(i)"
-        >
-          {{ i + 1 }}
-        </button>
-      </div>
-    </div>
 
-    <!-- Current Question -->
-    <div class="question-container">
-      <div class="question-header">
-        <h3 class="question-title">
-          Câu {{ currentQuestionIndex + 1 }}: {{ exam.questions![currentQuestionIndex].content }}
-        </h3>
-      </div>
-      
-      <!-- Question Image -->
-      <div *ngIf="exam.questions![currentQuestionIndex].image" class="question-image">
-        <img 
-          [src]="getImageUrl(exam.questions![currentQuestionIndex].image)" 
-          [alt]="'Hình ảnh câu hỏi ' + (currentQuestionIndex + 1)"
-          class="question-img"
-        />
-      </div>
-      
-      <!-- Answer Options -->
-      <div class="answer-options">
-        <div 
-          *ngFor="let answer of exam.questions![currentQuestionIndex].answers; let i = index"
-          class="answer-option"
-        >
-          <label class="answer-label">
-            <input 
-              type="checkbox"
-              [checked]="isAnswerSelected(currentQuestionIndex, i)"
-              (change)="onCheckboxChange(currentQuestionIndex, i, $event)"
-              class="answer-checkbox"
+      <!-- Right Content - Question Display -->
+      <div class="question-content">
+        <!-- Current Question -->
+        <div class="question-container">
+          <div class="question-header">
+            <h3 class="question-title">
+              Câu {{ currentQuestionIndex + 1 }}: {{ exam.questions![currentQuestionIndex].content }}
+            </h3>
+          </div>
+          
+          <!-- Question Image -->
+          <div *ngIf="exam.questions![currentQuestionIndex].image" class="question-image">
+            <img 
+              [src]="getImageUrl(exam.questions![currentQuestionIndex].image)" 
+              [alt]="'Hình ảnh câu hỏi ' + (currentQuestionIndex + 1)"
+              class="question-img"
             />
-            <span class="answer-letter">{{ getOptionLetter(i) }}.</span>
-            <span class="answer-text">{{ answer }}</span>
-          </label>
+          </div>
+          
+          <!-- Question Type Note -->
+          <div *ngIf="isMultipleChoiceQuestion(exam.questions![currentQuestionIndex])" class="question-note">
+            <mat-icon class="note-icon">info</mat-icon>
+            <span class="note-text">Lưu ý: Câu hỏi này có nhiều đáp án đúng. Bạn có thể chọn nhiều lựa chọn.</span>
+          </div>
+
+          <!-- Answer Options -->
+          <div class="answer-options">
+            <div 
+              *ngFor="let answer of exam.questions![currentQuestionIndex].answers; let i = index"
+              class="answer-option"
+            >
+              <label class="answer-label">
+                <input 
+                  [type]="isMultipleChoiceQuestion(exam.questions![currentQuestionIndex]) ? 'checkbox' : 'radio'"
+                  [name]="'question_' + currentQuestionIndex"
+                  [checked]="isAnswerSelected(currentQuestionIndex, i)"
+                  (change)="onInputChange(currentQuestionIndex, i, $event)"
+                  class="answer-input"
+                />
+                <span class="answer-letter">{{ getOptionLetter(i) }}.</span>
+                <span class="answer-text">{{ answer }}</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button class="back-dashboard-btn" (click)="backToDashboard()">
-        <i class="btn-icon">←</i>
-        Quay lại Dashboard
-      </button>
-      
       <button 
         class="submit-exam-btn" 
         [disabled]="isSubmitting"
         (click)="submitExam()"
       >
-        <i class="btn-icon">📤</i>
+        <mat-icon class="btn-icon">send</mat-icon>
         {{ isSubmitting ? 'Đang nộp bài...' : 'Nộp bài thi' }}
+      </button>
+      
+      <button class="back-dashboard-btn" (click)="backToDashboard()">
+        <mat-icon class="btn-icon">home</mat-icon>
+        Quay về trang chủ
+      </button>
+      
+      <button 
+        class="nav-btn-inline" 
+        [disabled]="currentQuestionIndex === 0"
+        (click)="previousQuestion()"
+        title="Câu trước"
+      >
+        <mat-icon>arrow_back</mat-icon>
+        <span>Câu trước</span>
+      </button>
+      
+      <button 
+        class="nav-btn-inline" 
+        [disabled]="currentQuestionIndex === getTotalQuestions() - 1"
+        (click)="nextQuestion()"
+        title="Câu sau"
+      >
+        <span>Câu sau</span>
+        <mat-icon>arrow_forward</mat-icon>
       </button>
     </div>
   </div>

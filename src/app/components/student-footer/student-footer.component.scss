@@ -1,154 +1,51 @@
 .student-footer {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  color: white;
+  background: #f8f9fa;
+  padding: 30px 0;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
   margin-top: auto;
-  border-top: 3px solid #3498db;
 }
 
 .footer-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
-}
-
-// Main Footer Content
-.footer-main {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1.5fr;
-  gap: 3rem;
-  padding: 3rem 0 2rem;
-}
-
-.footer-brand {
-  .footer-logo {
+  padding: 0 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  
+  .footer-text {
+    margin: 0;
+    font-size: 14px;
+    color: #999999;
+    line-height: 1.5;
+  }
+  
+  .scroll-top-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 10px;
+    background: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    margin-bottom: 1rem;
-    cursor: pointer;
-    transition: transform 0.2s ease;
+    justify-content: center;
+    padding: 0;
+    
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
     
     &:hover {
-      transform: scale(1.05);
-    }
-    
-    .footer-logo-img {
-      width: 35px;
-      height: 35px;
-      margin-right: 0.75rem;
-      filter: brightness(0) invert(1);
-    }
-    
-    .footer-brand-name {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: white;
-    }
-  }
-  
-  .footer-description {
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-    font-size: 0.95rem;
-    margin: 0;
-  }
-}
-
-.footer-links,
-.footer-support,
-.footer-contact {
-  .footer-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: white;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-  }
-  
-  .footer-menu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    
-    li {
-      margin-bottom: 0.75rem;
-      
-      .footer-link {
-        color: rgba(255, 255, 255, 0.8);
-        text-decoration: none;
-        font-size: 0.9rem;
-        transition: color 0.2s ease;
-        cursor: pointer;
-        
-        &:hover {
-          color: #3498db;
-        }
-      }
-    }
-  }
-}
-
-.footer-contact {
-  .contact-info {
-    .contact-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 0.9rem;
-      
-      .contact-icon {
-        margin-right: 0.75rem;
-        font-size: 1rem;
-        width: 20px;
-        text-align: center;
-      }
-    }
-  }
-}
-
-// Footer Bottom
-.footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1.5rem 0;
-  
-  .footer-bottom-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    
-    .copyright {
-      p {
-        margin: 0;
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.9rem;
-      }
-    }
-    
-    .footer-actions {
-      .scroll-top-btn {
-        width: 45px;
-        height: 45px;
-        border: none;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        
-        .scroll-icon {
-          font-size: 1.2rem;
-        }
-        
-        &:hover {
-          background: #3498db;
-          transform: translateY(-3px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-      }
+      background: rgba(76, 175, 80, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
+      color: #2e7d32;
     }
   }
 }
@@ -156,128 +53,48 @@
 // Responsive Design
 @media (max-width: 768px) {
   .footer-container {
-    padding: 0 1rem;
-  }
-  
-  .footer-main {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    padding: 2rem 0 1.5rem;
-  }
-  
-  .footer-brand {
-    text-align: center;
+    flex-direction: column;
+    gap: 15px;
+    padding: 0 15px;
     
-    .footer-logo {
-      justify-content: center;
+    .footer-text {
+      font-size: 13px;
     }
-  }
-  
-  .footer-links,
-  .footer-support,
-  .footer-contact {
-    text-align: center;
     
-    .footer-menu {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
+    .scroll-top-btn {
+      width: 36px;
+      height: 36px;
       
-      li {
-        margin-bottom: 0;
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
       }
-    }
-  }
-  
-  .footer-contact {
-    .contact-info {
-      .contact-item {
-        justify-content: center;
-      }
-    }
-  }
-  
-  .footer-bottom {
-    .footer-bottom-content {
-      flex-direction: column;
-      gap: 1rem;
-      text-align: center;
     }
   }
 }
 
 @media (max-width: 480px) {
+  .student-footer {
+    padding: 20px 0;
+  }
+  
   .footer-container {
-    padding: 0 0.75rem;
-  }
-  
-  .footer-main {
-    padding: 1.5rem 0 1rem;
-  }
-  
-  .footer-brand {
-    .footer-logo {
-      .footer-logo-img {
-        width: 30px;
-        height: 30px;
-        margin-right: 0.5rem;
-      }
+    padding: 0 10px;
+    gap: 10px;
+    
+    .footer-text {
+      font-size: 12px;
+    }
+    
+    .scroll-top-btn {
+      width: 32px;
+      height: 32px;
       
-      .footer-brand-name {
-        font-size: 1.2rem;
-      }
-    }
-    
-    .footer-description {
-      font-size: 0.9rem;
-    }
-  }
-  
-  .footer-links,
-  .footer-support,
-  .footer-contact {
-    .footer-title {
-      font-size: 1rem;
-      margin-bottom: 1rem;
-    }
-    
-    .footer-menu {
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-  }
-  
-  .footer-contact {
-    .contact-info {
-      .contact-item {
-        font-size: 0.85rem;
-        
-        .contact-icon {
-          margin-right: 0.5rem;
-          width: 18px;
-        }
-      }
-    }
-  }
-  
-  .footer-bottom {
-    padding: 1rem 0;
-    
-    .footer-bottom-content {
-      .copyright p {
-        font-size: 0.85rem;
-      }
-      
-      .footer-actions {
-        .scroll-top-btn {
-          width: 40px;
-          height: 40px;
-          
-          .scroll-icon {
-            font-size: 1rem;
-          }
-        }
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
       }
     }
   }

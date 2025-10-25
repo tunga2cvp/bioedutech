@@ -109,6 +109,7 @@ export interface TestDetailApiResponse {
     end_date?: string;
     assigned_classes?: string[];
     created_by?: string;
+    timer?: string; // Timer field in format like "2m", "1h", etc.
   };
 }
 
@@ -129,6 +130,7 @@ export interface TestDetailResponse {
   end_date?: string;
   assigned_classes?: string[];
   created_by?: string;
+  timer?: string; // Timer field in format like "2m", "1h", etc.
 }
 
 // New Exam Submission API Models based on /exams/{exam_id}/submit
@@ -304,7 +306,8 @@ export class ApiService {
           start_date: exam.start_date,
           end_date: exam.end_date,
           assigned_classes: exam.assigned_classes,
-          created_by: exam.created_by
+          created_by: exam.created_by,
+          timer: exam.timer
         } as TestDetailResponse;
       }),
       catchError(this.handleError)

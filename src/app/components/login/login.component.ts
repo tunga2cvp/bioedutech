@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -22,6 +23,7 @@ import { LoginCredentials } from '../../models/user.model';
     MatInputModule,
     MatButtonModule,
     MatRadioModule,
+    MatIconModule,
     MatSnackBarModule
   ],
   templateUrl: './login.component.html',

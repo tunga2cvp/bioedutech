@@ -10,16 +10,16 @@
     <div class="error-message">
       <i class="error-icon">⚠️</i>
       <p>{{ error }}</p>
-      <button class="back-btn" (click)="backToDashboard()">Quay lại Dashboard</button>
+      <button class="btn btn-primary" (click)="backToDashboard()">Quay lại</button>
     </div>
   </div>
 
   <!-- Result Content -->
   <div *ngIf="exam && submissionResult && !isLoading && !error" class="result-content">
-    <!-- Header -->
+    <!-- Result Header -->
     <div class="result-header">
       <div class="exam-info">
-        <h1 class="exam-title">{{ exam.exam_name }}</h1>
+        <h2 class="exam-title">{{ exam.exam_name }}</h2>
         <p *ngIf="exam.description" class="exam-description">{{ exam.description }}</p>
       </div>
       
@@ -27,7 +27,7 @@
       <div class="overall-score" [ngClass]="getScoreColor(submissionResult.percentage)">
         <div class="score-circle">
           <div class="score-number">{{ submissionResult.percentage }}%</div>
-          <div class="score-label">Điểm số</div>
+          <div class="score-label">Kết quả</div>
         </div>
         <div class="score-details">
           <div class="score-text">{{ getScoreText(submissionResult.percentage) }}</div>
@@ -65,7 +65,7 @@
       </div>
     </div>
 
-    <!-- Question Results -->
+    <!-- Questions Results -->
     <div class="questions-results">
       <h2 class="section-title">Chi tiết từng câu hỏi</h2>
       
@@ -78,7 +78,6 @@
           <div class="question-header">
             <div class="question-number">
               <span class="number">{{ result.questionIndex + 1 }}</span>
-              <span class="status-icon">{{ result.isCorrect ? '✅' : '❌' }}</span>
             </div>
             <div class="question-content">
               <h3 class="question-title">{{ result.question.content }}</h3>
@@ -124,7 +123,7 @@
               (click)="askAIExplanation(i)"
               [disabled]="result.isGettingAIExplanation"
             >
-              <i class="btn-icon">🤖</i>
+              <span class="btn-icon">🤖</span>
               {{ result.isGettingAIExplanation ? 'Đang hỏi AI...' : 'Hỏi AI giải thích' }}
             </button>
           </div>
@@ -132,7 +131,7 @@
           <!-- AI Explanation -->
           <div *ngIf="result.aiExplanation" class="ai-explanation">
             <h4 class="explanation-title">
-              <i class="ai-icon">🤖</i>
+              <span class="ai-icon">🤖</span>
               Giải thích từ AI (Giáo viên Sinh học):
             </h4>
             <div class="ai-explanation-content" [innerHTML]="result.aiExplanation"></div>
@@ -149,14 +148,12 @@
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button class="back-dashboard-btn" (click)="backToDashboard()">
-        <i class="btn-icon">←</i>
-        Quay lại Dashboard
+      <button class="btn btn-primary" (click)="backToDashboard()">
+        ← Quay lại Dashboard
       </button>
       
-      <button class="retake-btn" (click)="retakeExam()">
-        <i class="btn-icon">🔄</i>
-        Làm lại bài thi
+      <button class="btn btn-retake" (click)="retakeExam()">
+        🔄 Làm lại bài thi
       </button>
     </div>
   </div>

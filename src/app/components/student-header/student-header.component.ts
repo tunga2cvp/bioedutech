@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../services/auth.service';
 import { StudentUser } from '../../models/user.model';
 
 @Component({
   selector: 'app-student-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule],
   templateUrl: './student-header.component.html',
   styleUrl: './student-header.component.scss'
 })

@@ -1,7 +1,29 @@
 <div class="student-dashboard">
   <div class="dashboard-header">
-    <h1>Dashboard Học Sinh</h1>
-    <p class="subtitle">Danh sách các bài thi có sẵn</p>
+    <h1>Danh sách bài thi</h1>
+    <p class="subtitle">Chọn bài thi bạn muốn làm</p>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <div class="search-container">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input 
+        type="text" 
+        class="search-input"
+        placeholder="Tìm kiếm bài thi theo tên..."
+        [(ngModel)]="searchText"
+        (input)="onSearchChange()"
+      >
+      <button 
+        *ngIf="searchText" 
+        class="clear-btn"
+        (click)="clearSearch()"
+        mat-icon-button
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -22,16 +44,18 @@
   <!-- Exams List -->
   <div *ngIf="!loading && !error" class="exams-container">
     <!-- Empty State -->
-    <div *ngIf="exams.length === 0" class="empty-state">
+    <div *ngIf="filteredExams.length === 0" class="empty-state">
       <div class="empty-icon">📚</div>
-      <h3>Chưa có bài thi nào</h3>
-      <p>Hiện tại chưa có bài thi nào được tạo. Vui lòng quay lại sau.</p>
+      <h3 *ngIf="searchText">Không tìm thấy bài thi</h3>
+      <h3 *ngIf="!searchText">Chưa có bài thi nào</h3>
+      <p *ngIf="searchText">Không có bài thi nào khớp với "{{ searchText }}"</p>
+      <p *ngIf="!searchText && exams.length === 0">Hiện tại chưa có bài thi nào được tạo. Vui lòng quay lại sau.</p>
     </div>
 
     <!-- Exams Grid -->
-    <div *ngIf="exams.length > 0" class="exams-grid">
+    <div *ngIf="filteredExams.length > 0" class="exams-grid">
       <div 
-        *ngFor="let exam of exams" 
+        *ngFor="let exam of paginatedExams" 
         class="exam-card"
         (click)="onExamClick(exam)"
       >
@@ -43,40 +67,36 @@
         </div>
 
         <div class="exam-content">
-          <p *ngIf="exam.description" class="exam-description">
-            {{ exam.description }}
-          </p>
-          
           <div class="exam-details">
             <div class="detail-item">
-              <i class="detail-icon">📝</i>
+              <mat-icon class="detail-icon">assignment</mat-icon>
               <span>{{ exam.question_count || 0 }} câu hỏi</span>
             </div>
             
             <div *ngIf="exam.time_limit" class="detail-item">
-              <i class="detail-icon">⏱️</i>
+              <mat-icon class="detail-icon">schedule</mat-icon>
               <span>{{ exam.time_limit }} phút</span>
             </div>
             
             <div *ngIf="exam.max_score" class="detail-item">
-              <i class="detail-icon">🎯</i>
+              <mat-icon class="detail-icon">grade</mat-icon>
               <span>{{ exam.max_score }} điểm</span>
             </div>
             
             <div *ngIf="exam.grade" class="detail-item">
-              <i class="detail-icon">🎓</i>
+              <mat-icon class="detail-icon">school</mat-icon>
               <span>Lớp {{ exam.grade }}</span>
             </div>
           </div>
 
           <div class="exam-meta" *ngIf="exam.start_date || exam.end_date">
             <div *ngIf="exam.start_date" class="exam-date">
-              <i class="meta-icon">🚀</i>
+              <mat-icon class="meta-icon">play_circle_filled</mat-icon>
               <span>Bắt đầu: {{ formatDate(exam.start_date) }}</span>
             </div>
             
             <div *ngIf="exam.end_date" class="exam-date">
-              <i class="meta-icon">🏁</i>
+              <mat-icon class="meta-icon">stop_circle</mat-icon>
               <span>Kết thúc: {{ formatDate(exam.end_date) }}</span>
             </div>
           </div>

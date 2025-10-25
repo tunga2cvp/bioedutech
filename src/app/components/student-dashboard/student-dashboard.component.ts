@@ -1,22 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { ApiService, TestListItem, TestListResponse } from '../../services/api.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, MatIconModule, MatButtonModule],
   templateUrl: './student-dashboard.component.html',
   styleUrl: './student-dashboard.component.scss'
 })
 export class StudentDashboardComponent implements OnInit {
   exams: TestListItem[] = [];
+  filteredExams: TestListItem[] = [];
+  paginatedExams: TestListItem[] = [];
   loading = false;
   error: string | null = null;
   currentPage = 1;
   totalPages = 1;
   itemsPerPage = 10;
+  searchText = '';
 
   constructor(
     private apiService: ApiService,
@@ -31,10 +37,11 @@ export class StudentDashboardComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    this.apiService.getTests(this.currentPage, this.itemsPerPage).subscribe({
+    this.apiService.getTests(1, 1000).subscribe({
       next: (response: TestListResponse) => {
         this.exams = response.exams || [];
-        this.totalPages = Math.ceil((response.count || 0) / this.itemsPerPage);
+        this.filteredExams = [...this.exams];
+        this.updatePagination();
         this.loading = false;
       },
       error: (error) => {
@@ -45,19 +52,45 @@ export class StudentDashboardComponent implements OnInit {
     });
   }
 
+  onSearchChange(): void {
+    this.currentPage = 1;
+    if (this.searchText.trim() === '') {
+      this.filteredExams = [...this.exams];
+    } else {
+      const searchLower = this.searchText.toLowerCase();
+      this.filteredExams = this.exams.filter(exam =>
+        exam.exam_name?.toLowerCase().includes(searchLower)
+      );
+    }
+    this.updatePagination();
+  }
+
+  clearSearch(): void {
+    this.searchText = '';
+    this.onSearchChange();
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredExams.length / this.itemsPerPage);
+    this.currentPage = Math.min(this.currentPage, this.totalPages || 1);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedExams = this.filteredExams.slice(startIndex, endIndex);
+  }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadExams();
+    this.updatePagination();
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   onExamClick(exam: TestListItem): void {
-    // Navigate to exam detail or start exam
     this.router.navigate(['/student/exam', exam.id]);
   }
 
   startExam(exam: TestListItem): void {
     if (this.canTakeExam(exam)) {
-      // Navigate to take exam page
       this.router.navigate(['/student/exam', exam.id]);
     }
   }
@@ -102,7 +135,6 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   canTakeExam(exam: TestListItem): boolean {
-    // Mặc định cho phép làm bài nếu không có status hoặc status là 'active'
     return !exam.status || exam.status.toLowerCase() === 'active';
   }
 }

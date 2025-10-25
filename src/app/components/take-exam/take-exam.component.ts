@@ -1,7 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, TestDetailResponse, ExamSubmissionRequest, ExamSubmissionResponse } from '../../services/api.service';
+import { TimerService, TimerConfig } from '../../services/timer.service';
 
 interface ExamAnswer {
   questionId: number;
@@ -16,7 +19,7 @@ export function getOptionLetter(index: number): string {
 @Component({
   selector: 'app-take-exam',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule, MatSnackBarModule],
   templateUrl: './take-exam.component.html',
   styleUrls: ['./take-exam.component.scss']
 })
@@ -35,10 +38,17 @@ export class TakeExamComponent implements OnInit, OnDestroy {
   examStartTime: Date | null = null;
   submissionResult: ExamSubmissionResponse | null = null;
   
+  // Timer state
+  timerStatus: 'idle' | 'running' | 'warning' | 'critical' = 'idle';
+  showTimeUpAlert: boolean = false;
+  hasShownFinalWarning: boolean = false;
+  
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private timerService: TimerService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -54,9 +64,7 @@ export class TakeExamComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
+    this.timerService.stopTimer();
   }
 
   loadExam(examId: string): void {
@@ -71,6 +79,7 @@ export class TakeExamComponent implements OnInit, OnDestroy {
           this.initializeExam();
           console.log('✅ Exam loaded successfully:', exam.exam_name);
           console.log('✅ Questions count:', exam.questions?.length || 0);
+          console.log('📋 Timer from API:', exam.timer);
         } else {
           console.log('⚠️ No exam returned from server');
           this.error = 'Không tìm thấy bài thi';
@@ -97,40 +106,84 @@ export class TakeExamComponent implements OnInit, OnDestroy {
       selectedAnswers: []
     }));
     
-    // Initialize timer if time limit exists
-    if (this.exam.time_limit && this.exam.time_limit > 0) {
-      this.timeRemaining = this.exam.time_limit * 60; // Convert minutes to seconds
+    // Initialize timer from API or fallback to time_limit
+    this.initializeTimer();
+  }
+
+  initializeTimer(): void {
+    let durationInSeconds = 0;
+
+    // Try to get timer from API first
+    if (this.exam?.timer) {
+      durationInSeconds = this.timerService.parseTimerString(this.exam.timer);
+      console.log(`⏱️ Timer from API: ${this.exam.timer} (${durationInSeconds} seconds)`);
+    } else if (this.exam?.time_limit && this.exam.time_limit > 0) {
+      // Fallback to time_limit (in minutes)
+      durationInSeconds = this.exam.time_limit * 60;
+      console.log(`⏱️ Timer from time_limit: ${this.exam.time_limit} minutes (${durationInSeconds} seconds)`);
+    }
+
+    // Only start timer if we have a valid duration
+    if (durationInSeconds > 0) {
+      this.timeRemaining = durationInSeconds;
       this.startTimer();
     }
   }
 
   startTimer(): void {
-    this.timer = setInterval(() => {
-      this.timeRemaining--;
-      if (this.timeRemaining <= 0) {
+    const timerConfig: TimerConfig = {
+      duration: this.timeRemaining,
+      onTick: (secondsRemaining) => {
+        this.timeRemaining = secondsRemaining;
+      },
+      onWarning: (secondsRemaining) => {
+        console.log('⚠️ Warning: Time is running low');
+        this.timerStatus = 'warning';
+      },
+      onCritical: (secondsRemaining) => {
+        console.log('🔴 Critical: Time is almost up!');
+        this.timerStatus = 'critical';
+        
+        // Show toast notification once when entering critical state
+        if (!this.hasShownFinalWarning) {
+          this.hasShownFinalWarning = true;
+          this.showTimeUpNotification(secondsRemaining);
+        }
+      },
+      onTimeUp: () => {
+        console.log('⏰ Time is up! Auto-submitting exam...');
+        this.timerStatus = 'idle';
+        this.showTimeUpAlert = true;
         this.timeUp();
       }
-    }, 1000);
+    };
+
+    this.timerService.startTimer(timerConfig);
+    this.timerStatus = 'running';
+  }
+
+  showTimeUpNotification(secondsRemaining: number): void {
+    const formattedTime = this.formatTime(secondsRemaining);
+    const message = `⏰ Sắp hết giờ! Còn lại ${formattedTime}. Hệ thống sẽ tự động nộp bài khi hết thời gian.`;
+    
+    this.snackBar.open(message, '✓', {
+      duration: 10000, // Show for 10 seconds
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: ['timer-toast-critical']
+    });
   }
 
   timeUp(): void {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-    alert('Hết thời gian làm bài! Bài thi sẽ được tự động nộp.');
-    this.submitExam();
+    this.timerService.stopTimer();
+    // Auto-submit WITHOUT showing alert - directly submit
+    setTimeout(() => {
+      this.submitExamAuto();
+    }, 100);
   }
 
   formatTime(seconds: number): string {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    
-    if (hours > 0) {
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    } else {
-      return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
+    return this.timerService.formatSeconds(seconds);
   }
 
   onAnswerChange(questionIndex: number, answerIndex: number, isChecked: boolean): void {
@@ -138,11 +191,17 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     const question = this.exam.questions[questionIndex];
     
     const answer = this.answers[questionIndex];
+    const isMultipleChoice = this.isMultipleChoiceQuestion(question);
     
     if (isChecked) {
-      // Add answer if not already selected
-      if (!answer.selectedAnswers.includes(answerIndex)) {
-        answer.selectedAnswers.push(answerIndex);
+      if (isMultipleChoice) {
+        // Multiple choice: Add answer if not already selected
+        if (!answer.selectedAnswers.includes(answerIndex)) {
+          answer.selectedAnswers.push(answerIndex);
+        }
+      } else {
+        // Single choice: Replace previous selection
+        answer.selectedAnswers = [answerIndex];
       }
     } else {
       // Remove answer
@@ -152,7 +211,12 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     console.log(`Question ${questionIndex + 1} answers:`, answer.selectedAnswers);
   }
 
-  onCheckboxChange(questionIndex: number, answerIndex: number, event: Event): void {
+  isMultipleChoiceQuestion(question: any): boolean {
+    // Kiểm tra nếu có nhiều hơn 1 đáp án đúng
+    return question.correct_answers && question.correct_answers.length > 1;
+  }
+
+  onInputChange(questionIndex: number, answerIndex: number, event: Event): void {
     const target = event.target as HTMLInputElement;
     this.onAnswerChange(questionIndex, answerIndex, target?.checked || false);
   }
@@ -185,7 +249,17 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     const confirmSubmit = confirm('Bạn có chắc chắn muốn nộp bài thi? Sau khi nộp, bạn không thể thay đổi câu trả lời.');
     if (!confirmSubmit) return;
     
+    this.performSubmission();
+  }
+
+  submitExamAuto(): void {
+    if (this.isSubmitting || !this.examId) return;
+    this.performSubmission();
+  }
+
+  performSubmission(): void {
     this.isSubmitting = true;
+    this.timerService.stopTimer();
     
     // Calculate time taken
     const timeTaken = this.examStartTime ? 
@@ -199,6 +273,13 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     };
     
     console.log('Submitting exam:', submissionData);
+    
+    // Ensure examId is not null
+    if (!this.examId) {
+      this.isSubmitting = false;
+      this.error = 'Exam ID không hợp lệ';
+      return;
+    }
     
     this.apiService.submitExam(this.examId, submissionData).subscribe({
       next: (response: ExamSubmissionResponse) => {
@@ -228,6 +309,7 @@ export class TakeExamComponent implements OnInit, OnDestroy {
   backToDashboard(): void {
     const confirmLeave = confirm('Bạn có chắc chắn muốn rời khỏi bài thi? Tiến trình hiện tại sẽ bị mất.');
     if (confirmLeave) {
+      this.timerService.stopTimer();
       this.router.navigate(['/student']);
     }
   }

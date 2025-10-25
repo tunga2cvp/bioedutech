@@ -3,46 +3,16 @@
     <!-- Logo và Brand -->
     <div class="brand-section">
       <div class="logo" (click)="goToHome()">
-        <img src="assets/bioedutech-logo.svg" alt="BioEduTech Logo" class="logo-img">
-        <span class="brand-name">BioEduTech</span>
+        <img src="assets/logo.jpg" alt="BioEduTech Logo" class="logo-img">
+        <div class="logo-text">
+          <span class="brand-name">Sinh học cùng cô Thảo</span>
+          <p class="brand-tagline">Nền tảng học tập AI</p>
+        </div>
       </div>
     </div>
 
-    <!-- Navigation Menu -->
-    <nav class="nav-section" *ngIf="isLoggedIn">
-      <ul class="nav-menu">
-        <li class="nav-item">
-          <a 
-            class="nav-link" 
-            [class.active]="isActiveRoute('student-dashboard')"
-            (click)="goToDashboard()"
-          >
-            <i class="nav-icon">📊</i>
-            Dashboard
-          </a>
-        </li>
-        <li class="nav-item">
-          <a 
-            class="nav-link" 
-            [class.active]="isActiveRoute('student')"
-            (click)="goToExams()"
-          >
-            <i class="nav-icon">📝</i>
-            Bài Thi
-          </a>
-        </li>
-        <li class="nav-item">
-          <a 
-            class="nav-link" 
-            href="#"
-            (click)="goToProfile()"
-          >
-            <i class="nav-icon">👤</i>
-            Hồ Sơ
-          </a>
-        </li>
-      </ul>
-    </nav>
+    <!-- Spacer for center alignment -->
+    <div class="spacer"></div>
 
     <!-- User Section -->
     <div class="user-section" *ngIf="isLoggedIn">
@@ -52,16 +22,12 @@
         </div>
         <div class="user-details">
           <span class="user-name">{{ currentUser?.name || currentUser?.username }}</span>
-          <span class="user-role">Học sinh - Lớp {{ currentUser?.class || '12A1' }}</span>
         </div>
       </div>
       
       <div class="user-actions">
-        <button class="action-btn profile-btn" (click)="goToProfile()" title="Hồ sơ">
-          <i class="action-icon">⚙️</i>
-        </button>
-        <button class="action-btn logout-btn" (click)="logout()" title="Đăng xuất">
-          <i class="action-icon">🚪</i>
+        <button class="action-btn logout-btn" (click)="logout()" title="Đăng xuất" mat-icon-button>
+          <mat-icon>logout</mat-icon>
         </button>
       </div>
     </div>
@@ -69,7 +35,7 @@
     <!-- Login Button (when not logged in) -->
     <div class="login-section" *ngIf="!isLoggedIn">
       <button class="login-btn" (click)="goToHome()">
-        <i class="login-icon">🔑</i>
+        <mat-icon>login</mat-icon>
         Đăng nhập
       </button>
     </div>
