@@ -1,6 +1,28 @@
-<app-layout>
+<!-- Header Section -->
+<header class="header">
+  <div class="container">
+    <div class="logo-section">
+      <div class="logo">
+        <img src="assets/logo.jpg" alt="BioEduTech Logo" class="logo-icon">
+        <div class="logo-text">
+          <h1>Sinh học cùng cô Thảo</h1>
+          <p>Ôn luyện, tài liệu và trắc nghiệm cho học sinh THPT</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="auth-buttons">
+      <button class="btn btn-outline" (click)="backToDashboard()">
+        ← Quay lại Dashboard
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content Section -->
+<main class="main-content">
   <div class="create-exercise-container">
-    <!-- Header Section -->
+    <!-- Page Header -->
     <div class="page-header">
       <div class="container">
         <h1>{{ isEditMode ? 'Chỉnh Sửa Bài Tập' : 'Tạo Bài Tập Trắc Nghiệm' }}</h1>
@@ -280,4 +302,11 @@ d) ddd</pre>
     </form>
     </div>
   </div>
-</app-layout>
+</main>
+
+<!-- Footer Section -->
+<footer class="footer">
+  <div class="container">
+    <p>© 2025 BioEduTech - Nền tảng học tập AI cùng cô Thảo</p>
+  </div>
+</footer>

@@ -10,24 +10,10 @@ import { takeUntil } from 'rxjs/operators';
 
 import { AuthService } from '../../services/auth.service';
 import { ExerciseService } from '../../services/exercise.service';
+import { ApiService, UsersResponse, User } from '../../services/api.service';
 import { TeacherUser } from '../../models/user.model';
 import { ExerciseStats } from '../../models/exercise.model';
-import { LayoutComponent } from '../layout/layout.component';
 
-interface Activity {
-  icon: string;
-  title: string;
-  description: string;
-  time: string;
-}
-
-interface ClassInfo {
-  id: string;
-  name: string;
-  grade: number;
-  studentCount: number;
-  assignmentCount: number;
-}
 
 @Component({
   selector: 'app-teacher-dashboard',
@@ -37,8 +23,7 @@ interface ClassInfo {
     MatIconModule,
     MatButtonModule,
     MatCardModule,
-    MatSnackBarModule,
-    LayoutComponent
+    MatSnackBarModule
   ],
   templateUrl: './teacher-dashboard.component.html',
   styleUrl: './teacher-dashboard.component.scss'
@@ -51,65 +36,22 @@ export class TeacherDashboardComponent implements OnInit, OnDestroy {
   // Real data from services
   totalStudents = 0;
   totalAssignments = 0;
-  totalQuizzes = 0;
-  averageScore = 0;
   exerciseStats: ExerciseStats | null = null;
   isLoadingStats = true;
   
-  recentActivities: Activity[] = [
-    {
-      icon: 'assignment_turned_in',
-      title: 'Bài tập mới được nộp',
-      description: 'Lớp 12A1 - Bài tập về Di truyền học',
-      time: '2 giờ trước'
-    },
-    {
-      icon: 'quiz',
-      title: 'Đề thi trắc nghiệm đã tạo',
-      description: 'Đề thi giữa kỳ - Chương 3: Sinh sản',
-      time: '1 ngày trước'
-    },
-    {
-      icon: 'group_add',
-      title: 'Học sinh mới tham gia',
-      description: 'Nguyễn Văn A đã tham gia lớp 12A1',
-      time: '2 ngày trước'
-    },
-    {
-      icon: 'assessment',
-      title: 'Báo cáo điểm số',
-      description: 'Điểm trung bình lớp 12A1: 8.5/10',
-      time: '3 ngày trước'
-    }
-  ];
+  // Students data from API
+  students: User[] = [];
+  isLoadingStudents = true;
   
-  teacherClasses: ClassInfo[] = [
-    {
-      id: '1',
-      name: 'Lớp 12A1',
-      grade: 12,
-      studentCount: 25,
-      assignmentCount: 8
-    },
-    {
-      id: '2',
-      name: 'Lớp 12A2',
-      grade: 12,
-      studentCount: 20,
-      assignmentCount: 6
-    },
-    {
-      id: '3',
-      name: 'Lớp 11B1',
-      grade: 11,
-      studentCount: 22,
-      assignmentCount: 5
-    }
-  ];
+  // Exams data from API
+  exams: any[] = [];
+  isLoadingExams = true;
+  
 
   constructor(
     private authService: AuthService,
     private exerciseService: ExerciseService,
+    private apiService: ApiService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {}
@@ -128,6 +70,12 @@ export class TeacherDashboardComponent implements OnInit, OnDestroy {
 
     // Load teacher data
     this.loadTeacherData();
+    
+    // Load students data
+    this.loadStudentsData();
+    
+    // Load exams data
+    this.loadExamsData();
   }
 
   ngOnDestroy(): void {
@@ -157,15 +105,72 @@ export class TeacherDashboardComponent implements OnInit, OnDestroy {
 
   private updateStatsFromExerciseData(stats: ExerciseStats): void {
     // Update stats based on real exercise data
-    this.totalAssignments = stats.totalExercises;
-    this.totalQuizzes = stats.publishedExercises;
+    // totalAssignments will be updated from exams API call
     
-    // Calculate average score (mock for now, would need submission data)
-    this.averageScore = stats.totalExercises > 0 ? Math.round(85 + Math.random() * 10) : 0;
+    // Student count will be updated from API call
+    this.totalStudents = this.students.length;
+  }
+
+  private loadExamsData(): void {
+    console.log('Loading exams data from API...');
     
-    // Student count would come from student management API
-    // For now, keep mock data
-    this.totalStudents = 45;
+    this.apiService.getTests(1, 100) // Get first 100 exams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success && response.exams) {
+            this.exams = response.exams;
+            this.totalAssignments = response.count; // Use total count from API
+            this.isLoadingExams = false;
+            console.log('Exams loaded successfully:', {
+              totalCount: response.count,
+              loadedExams: this.exams.length,
+              exams: this.exams.map(e => ({ id: e.id, name: e.exam_name, status: e.status }))
+            });
+          } else {
+            console.warn('API response indicates failure:', response);
+            this.isLoadingExams = false;
+          }
+        },
+        error: (error) => {
+          console.error('Error loading exams:', error);
+          this.isLoadingExams = false;
+          this.snackBar.open('Không thể tải danh sách bài tập', 'Đóng', {
+            duration: 3000
+          });
+        }
+      });
+  }
+
+  private loadStudentsData(): void {
+    console.log('Loading students data from API...');
+    
+    this.apiService.getStudents(1, 100) // Get first 100 students
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: UsersResponse) => {
+          if (response.success && response.users) {
+            this.students = response.users;
+            this.totalStudents = response.count; // Use total count from API
+            this.isLoadingStudents = false;
+            console.log('Students loaded successfully:', {
+              totalCount: response.count,
+              loadedStudents: this.students.length,
+              students: this.students.map(s => ({ id: s.id, name: s.name, username: s.username }))
+            });
+          } else {
+            console.warn('API response indicates failure:', response);
+            this.isLoadingStudents = false;
+          }
+        },
+        error: (error) => {
+          console.error('Error loading students:', error);
+          this.isLoadingStudents = false;
+          this.snackBar.open('Không thể tải danh sách học sinh', 'Đóng', {
+            duration: 3000
+          });
+        }
+      });
   }
 
   logout(): void {
@@ -195,17 +200,4 @@ export class TeacherDashboardComponent implements OnInit, OnDestroy {
     // TODO: Navigate to reports page
   }
 
-  viewClass(classId: string): void {
-    this.snackBar.open(`Xem chi tiết lớp ${classId}`, 'Đóng', {
-      duration: 2000
-    });
-    // TODO: Navigate to class detail page
-  }
-
-  manageClass(classId: string): void {
-    this.snackBar.open(`Quản lý lớp ${classId}`, 'Đóng', {
-      duration: 2000
-    });
-    // TODO: Navigate to class management page
-  }
 }

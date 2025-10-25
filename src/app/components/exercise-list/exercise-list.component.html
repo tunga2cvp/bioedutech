@@ -1,47 +1,38 @@
-<app-layout>
-  <div class="exercise-list-container">
-    <!-- Header Section -->
-    <div class="header">
-      <div class="container">
-        <div class="header-content">
-          <h1>Quản Lý Bài Tập</h1>
-          <p>Quản lý và theo dõi các bài tập trắc nghiệm đã tạo</p>
-          <button class="btn btn-primary" (click)="createNewExercise()">
-            + Tạo Bài Tập Mới
-          </button>
+<!-- Header Section -->
+<header class="header">
+  <div class="container">
+    <div class="logo-section">
+      <div class="logo">
+        <img src="assets/logo.jpg" alt="BioEduTech Logo" class="logo-icon">
+        <div class="logo-text">
+          <h1>Sinh học cùng cô Thảo</h1>
+          <p>Ôn luyện, tài liệu và trắc nghiệm cho học sinh THPT</p>
         </div>
       </div>
     </div>
-
-    <div class="container">
-      <!-- Thống kê -->
-  <div class="stats-section" *ngIf="stats">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">📚</div>
-        <div class="stat-content">
-          <h3>{{ stats.totalExercises }}</h3>
-          <p>Tổng bài tập</p>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">✅</div>
-        <div class="stat-content">
-          <h3>{{ stats.publishedExercises }}</h3>
-          <p>Đã xuất bản</p>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">❓</div>
-        <div class="stat-content">
-          <h3>{{ stats.totalQuestions }}</h3>
-          <p>Tổng câu hỏi</p>
-        </div>
-      </div>
+    
+    <div class="auth-buttons">
+      <button class="btn btn-primary" (click)="createNewExercise()">
+        + Tạo Bài Tập Mới
+      </button>
+      <button class="btn btn-outline" (click)="goToDashboard()">
+        Dashboard
+      </button>
     </div>
   </div>
+</header>
 
-  <!-- Bộ lọc -->
+<!-- Main Content Section -->
+<main class="main-content">
+  <div class="container">
+    <div class="exercise-list-container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1>Quản Lý Bài Tập Trắc Nghiệm</h1>
+        <p>Tạo, chỉnh sửa và theo dõi các bài tập của bạn</p>
+      </div>
+
+      <!-- Bộ lọc -->
   <div class="filters-section">
     <div class="filters-header">
       <h3>Tìm kiếm bài tập</h3>
@@ -100,6 +91,13 @@
       ></app-exercise-card>
     </div>
   </div>
-</div>
+    </div>
+  </div>
+</main>
 
-
+<!-- Footer Section -->
+<footer class="footer">
+  <div class="container">
+    <p>© 2025 BioEduTech - Nền tảng học tập AI cùng cô Thảo</p>
+  </div>
+</footer>

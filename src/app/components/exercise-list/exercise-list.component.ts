@@ -3,21 +3,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ExerciseService } from '../../services/exercise.service';
-import { Exercise, ExerciseStats } from '../../models/exercise.model';
-import { LayoutComponent } from '../layout/layout.component';
+import { Exercise } from '../../models/exercise.model';
 import { ExerciseCardComponent } from '../exercise-card/exercise-card.component';
 
 @Component({
   selector: 'app-exercise-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LayoutComponent, ExerciseCardComponent],
+  imports: [CommonModule, FormsModule, ExerciseCardComponent],
   templateUrl: './exercise-list.component.html',
   styleUrls: ['./exercise-list.component.scss']
 })
 export class ExerciseListComponent implements OnInit {
   exercises: Exercise[] = [];
   filteredExercises: Exercise[] = [];
-  stats: ExerciseStats | null = null;
   isLoading = false;
   searchTerm = '';
 
@@ -28,7 +26,6 @@ export class ExerciseListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadExercises();
-    this.loadStats();
   }
 
   loadExercises(): void {
@@ -65,33 +62,6 @@ export class ExerciseListComponent implements OnInit {
     });
   }
 
-  loadStats(): void {
-    // Load stats từ server data
-    this.exerciseService.loadExercisesFromServer().subscribe({
-      next: (exercises) => {
-        // Tính toán stats từ dữ liệu server - bỏ cơ chế bản nháp
-        const totalExercises = exercises.length;
-        const totalQuestions = exercises.reduce((sum, ex) => sum + ex.questions.length, 0);
-        const averageQuestionsPerExercise = totalExercises > 0 ? totalQuestions / totalExercises : 0;
-
-        this.stats = {
-          totalExercises,
-          publishedExercises: totalExercises, // Tất cả bài tập đều được coi là đã xuất bản
-          totalQuestions,
-          averageQuestionsPerExercise
-        };
-      },
-      error: (error) => {
-        console.error('Lỗi khi tải thống kê:', error);
-        // Fallback to local stats
-        this.exerciseService.getExerciseStats().subscribe({
-          next: (stats) => {
-            this.stats = stats;
-          }
-        });
-      }
-    });
-  }
 
   applyFilters(): void {
     console.log('🔍 applyFilters called with this.exercises.length:', this.exercises.length);
@@ -127,6 +97,10 @@ export class ExerciseListComponent implements OnInit {
 
   createNewExercise(): void {
     this.router.navigate(['/create-exercise']);
+  }
+
+  goToDashboard(): void {
+    this.router.navigate(['/teacher-dashboard']);
   }
 
 

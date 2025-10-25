@@ -218,6 +218,36 @@ export interface ImageUploadResponse {
   message?: string;
 }
 
+// Users API Models
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: 'teacher' | 'student';
+  name?: string;
+  grade?: number;
+  school?: string;
+  class?: string;
+  studentId?: string;
+  teacherId?: string;
+  subject?: string;
+  phone?: string;
+  department?: string;
+  experience?: number;
+  qualifications?: string[];
+  isVerified?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface UsersResponse {
+  success: boolean;
+  users: User[];
+  count: number;
+  page?: number;
+  limit?: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -445,5 +475,48 @@ export class ApiService {
     return this.http.post<ExcelRegistrationResponse>(`${this.baseUrl}/register_excel`, formData).pipe(
       catchError(this.handleError)
     );
+  }
+
+  // Get users list API call
+  getUsers(page: number = 1, limit: number = 100, role?: 'teacher' | 'student'): Observable<UsersResponse> {
+    const params = new URLSearchParams();
+    params.set('page', page.toString());
+    params.set('limit', limit.toString());
+    if (role) {
+      params.set('role', role);
+    }
+
+    console.log('📥 Fetching users from API:', {
+      url: `${this.baseUrl}/users?${params.toString()}`,
+      page,
+      limit,
+      role
+    });
+
+    return this.http.get<UsersResponse>(`${this.baseUrl}/users?${params.toString()}`, {
+      headers: this.getHeaders()
+    }).pipe(
+      tap((response: UsersResponse) => {
+        console.log('✅ Users fetched successfully:', {
+          count: response.count,
+          usersCount: response.users?.length || 0,
+          success: response.success
+        });
+      }),
+      catchError(error => {
+        console.error('❌ Error fetching users:', error);
+        return this.handleError(error);
+      })
+    );
+  }
+
+  // Get students only (filtered by role)
+  getStudents(page: number = 1, limit: number = 100): Observable<UsersResponse> {
+    return this.getUsers(page, limit, 'student');
+  }
+
+  // Get teachers only (filtered by role)
+  getTeachers(page: number = 1, limit: number = 100): Observable<UsersResponse> {
+    return this.getUsers(page, limit, 'teacher');
   }
 }
