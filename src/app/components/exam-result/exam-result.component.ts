@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, TestDetailResponse, ExamSubmissionResponse } from '../../services/api.service';
+import { AIExplanationService, AIExplanationRequest, AIExplanationResponse } from '../../services/ai-explanation.service';
 
 interface QuestionResult {
   questionIndex: number;
@@ -10,6 +11,8 @@ interface QuestionResult {
   correctAnswers: number[];
   isCorrect: boolean;
   explanation?: string;
+  aiExplanation?: string;
+  isGettingAIExplanation?: boolean;
 }
 
 @Component({
@@ -31,7 +34,8 @@ export class ExamResultComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private aiExplanationService: AIExplanationService
   ) {}
 
   ngOnInit(): void {
@@ -155,5 +159,36 @@ export class ExamResultComponent implements OnInit {
 
   getIncorrectCount(): number {
     return this.questionResults.filter(r => !r.isCorrect).length;
+  }
+
+  askAIExplanation(questionIndex: number): void {
+    const result = this.questionResults[questionIndex];
+    if (!result || result.isGettingAIExplanation) return;
+
+    result.isGettingAIExplanation = true;
+
+    const request: AIExplanationRequest = {
+      question: result.question.content,
+      answers: result.question.answers,
+      correctAnswers: result.correctAnswers,
+      userAnswers: result.userAnswers,
+      explanation: result.explanation
+    };
+
+    this.aiExplanationService.getExplanation(request).subscribe({
+      next: (response: AIExplanationResponse) => {
+        result.isGettingAIExplanation = false;
+        if (response.success) {
+          result.aiExplanation = response.explanation;
+        } else {
+          console.error('AI Explanation Error:', response.error);
+          // Có thể hiển thị thông báo lỗi cho user
+        }
+      },
+      error: (error) => {
+        result.isGettingAIExplanation = false;
+        console.error('AI Explanation Service Error:', error);
+      }
+    });
   }
 }

@@ -117,9 +117,30 @@
             </div>
           </div>
 
-          <!-- Explanation -->
+          <!-- AI Explanation Button -->
+          <div class="ai-explanation-section">
+            <button 
+              class="ai-explain-btn" 
+              (click)="askAIExplanation(i)"
+              [disabled]="result.isGettingAIExplanation"
+            >
+              <i class="btn-icon">🤖</i>
+              {{ result.isGettingAIExplanation ? 'Đang hỏi AI...' : 'Hỏi AI giải thích' }}
+            </button>
+          </div>
+
+          <!-- AI Explanation -->
+          <div *ngIf="result.aiExplanation" class="ai-explanation">
+            <h4 class="explanation-title">
+              <i class="ai-icon">🤖</i>
+              Giải thích từ AI (Giáo viên Sinh học):
+            </h4>
+            <div class="ai-explanation-content" [innerHTML]="result.aiExplanation"></div>
+          </div>
+
+          <!-- Original Explanation -->
           <div *ngIf="result.explanation" class="explanation">
-            <h4 class="explanation-title">Giải thích:</h4>
+            <h4 class="explanation-title">Giải thích gốc:</h4>
             <p class="explanation-text">{{ result.explanation }}</p>
           </div>
         </div>

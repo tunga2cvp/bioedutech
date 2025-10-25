@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biology Quiz Portal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f8fa;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #2b7a78;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h2 { color: #2b7a78; }
+    textarea, input[type="text"], select {
+      width: 100%; padding: 8px; margin: 8px 0;
+      border: 1px solid #ccc; border-radius: 5px;
+    }
+    button {
+      background: #2b7a78; color: white;
+      border: none; padding: 10px 15px;
+      margin-top: 10px; border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover { background: #205f5e; }
+    .hidden { display: none; }
+    .question-card {
+      border: 1px solid #ccc; padding: 10px;
+      border-radius: 5px; margin-bottom: 10px;
+    }
+    .option { margin-left: 15px; }
+    img { max-width: 100%; margin-top: 8px; }
+    .score { font-weight: bold; color: green; }
+    .ai-help {
+      background: #eaf4f4; border-left: 3px solid #2b7a78;
+      padding: 10px; margin-top: 10px; border-radius: 5px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🧬 Biology Quiz Portal</h1>
+    <p>Select Mode:</p>
+    <select id="modeSelect">
+      <option value="teacher">Teacher</option>
+      <option value="student">Student</option>
+    </select>
+  </header>
+
+  <div class="container" id="teacherPanel">
+    <h2>👩‍🏫 Teacher Panel</h2>
+    <h3>Upload New Question</h3>
+    <textarea id="questionText" rows="4" placeholder="Question: ... ?&#10;a) ...&#10;b) ... (correct)&#10;c) ..."></textarea>
+    <input type="file" id="questionImage" accept="image/*" />
+    <button onclick="addQuestion()">Add Question</button>
+
+    <h3>Existing Questions</h3>
+    <div id="questionList"></div>
+
+    <h3>Student Grades</h3>
+    <div id="gradeList"></div>
+  </div>
+
+  <div class="container hidden" id="studentPanel">
+    <h2>👩‍🎓 Student Panel</h2>
+    <input type="text" id="studentName" placeholder="Enter your name" />
+    <button onclick="startQuiz()">Start Quiz</button>
+    <div id="quizArea"></div>
+  </div>
+
+  <script>
+    // =============================
+    // 🔑 INSERT YOUR OPENAI API KEY HERE
+    const OPENAI_API_KEY = "YOUR_OPENAI_API_KEY";
+    // =============================
+
+    const modeSelect = document.getElementById('modeSelect');
+    const teacherPanel = document.getElementById('teacherPanel');
+    const studentPanel = document.getElementById('studentPanel');
+
+    modeSelect.addEventListener('change', () => {
+      if (modeSelect.value === 'teacher') {
+        teacherPanel.classList.remove('hidden');
+        studentPanel.classList.add('hidden');
+        renderQuestions();
+        renderGrades();
+      } else {
+        teacherPanel.classList.add('hidden');
+        studentPanel.classList.remove('hidden');
+      }
+    });
+
+    function getQuestions() {
+      return JSON.parse(localStorage.getItem('questions') || '[]');
+    }
+
+    function saveQuestions(qs) {
+      localStorage.setItem('questions', JSON.stringify(qs));
+    }
+
+    function addQuestion() {
+      const text = document.getElementById('questionText').value.trim();
+      const file = document.getElementById('questionImage').files[0];
+      if (!text) return alert('Please enter question text.');
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const imgData = file ? reader.result : null;
+        const qs = getQuestions();
+        qs.push({ text, img: imgData });
+        saveQuestions(qs);
+        document.getElementById('questionText').value = '';
+        document.getElementById('questionImage').value = '';
+        renderQuestions();
+      };
+      if (file) reader.readAsDataURL(file);
+      else reader.onload();
+    }
+
+    function renderQuestions() {
+      const list = document.getElementById('questionList');
+      const qs = getQuestions();
+      list.innerHTML = qs.map((q, i) => `
+        <div class="question-card">
+          <b>Question ${i+1}:</b><br>${q.text.replace(/\n/g, "<br>")}
+          ${q.img ? `<img src="${q.img}" />` : ""}
+          <br><button onclick="deleteQuestion(${i})">Delete</button>
+        </div>
+      `).join('') || '<p>No questions yet.</p>';
+    }
+
+    function deleteQuestion(index) {
+      const qs = getQuestions();
+      qs.splice(index, 1);
+      saveQuestions(qs);
+      renderQuestions();
+    }
+
+    function startQuiz() {
+      const name = document.getElementById('studentName').value.trim();
+      if (!name) return alert('Please enter your name');
+      const qs = getQuestions();
+      if (!qs.length) return alert('No questions available.');
+      const quizArea = document.getElementById('quizArea');
+      quizArea.innerHTML = qs.map((q, i) => {
+        return `
+          <div class="question-card">
+            <p><b>Q${i+1}.</b> ${q.text.split('\n')[0]}</p>
+            ${q.img ? `<img src="${q.img}" />` : ""}
+            ${q.text.split('\n').slice(1).map(opt => `
+              <div class="option"><label><input type="radio" name="q${i}" value="${opt.trim()}"> ${opt}</label></div>
+            `).join('')}
+            <div class="ai-help hidden" id="aiHelp${i}"></div>
+            <button onclick="askAI(${i})">Ask AI for Help</button>
+          </div>`;
+      }).join('') + `<button onclick="submitQuiz()">Submit</button>`;
+
+      quizArea.dataset.student = name;
+    }
+
+    // 🔬 Updated AI Help Function
+    async function askAI(index) {
+      const qData = getQuestions()[index];
+      const helpBox = document.getElementById('aiHelp' + index);
+      helpBox.textContent = "🤖 Đang suy nghĩ...";
+      helpBox.classList.remove('hidden');
+
+      const questionText = qData.text;
+      const prompt = `
+Bạn là giáo viên Sinh học cấp 3. Hãy đọc câu hỏi trắc nghiệm dưới đây và:
+1. Xác định đáp án đúng (chỉ rõ lựa chọn nào, ví dụ: b)).
+2. Giải thích vì sao đáp án đó đúng và các đáp án khác sai.
+3. Giải thích ngắn gọn, dễ hiểu như đang giảng bài cho học sinh.
+
+Câu hỏi:
+${questionText}
+      `;
+
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${OPENAI_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [
+              { role: "system", content: "Bạn là giáo viên Sinh học cấp 3, luôn trả lời chính xác và giải thích rõ ràng." },
+              { role: "user", content: prompt }
+            ],
+            temperature: 0.7
+          })
+        });
+        const data = await response.json();
+        const answer = data.choices?.[0]?.message?.content || "Không có phản hồi từ AI.";
+        helpBox.textContent = "🤖 AI (Giáo viên Sinh học):\n" + answer;
+      } catch (e) {
+        helpBox.textContent = "⚠️ Lỗi: " + e.message;
+      }
+    }
+
+    function submitQuiz() {
+      const quizArea = document.getElementById('quizArea');
+      const name = quizArea.dataset.student;
+      const qs = getQuestions();
+      let score = 0;
+      qs.forEach((q, i) => {
+        const correct = q.text.split('\n').find(l => l.includes('(correct)'))?.trim();
+        const selected = document.querySelector(`input[name="q${i}"]:checked`)?.value.trim();
+        if (correct && selected === correct) score++;
+      });
+      const percent = Math.round((score / qs.length) * 100);
+      alert(`${name}, bạn đạt ${percent}%`);
+      saveGrade(name, percent);
+      quizArea.innerHTML = `<p class="score">Điểm của bạn: ${percent}%</p>`;
+    }
+
+    function saveGrade(name, percent) {
+      const grades = JSON.parse(localStorage.getItem('grades') || '{}');
+      grades[name] = percent;
+      localStorage.setItem('grades', JSON.stringify(grades));
+    }
+
+    function renderGrades() {
+      const grades = JSON.parse(localStorage.getItem('grades') || '{}');
+      const list = document.getElementById('gradeList');
+      list.innerHTML = Object.keys(grades).length
+        ? Object.entries(grades).map(([n, s]) => `<p>${n}: ${s}%</p>`).join('')
+        : '<p>No grades recorded yet.</p>';
+    }
+
+    renderQuestions();
+    renderGrades();
+  </script>
+</body>
+</html>

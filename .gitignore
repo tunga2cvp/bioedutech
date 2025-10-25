@@ -15,6 +15,9 @@
 # Environment files
 /.env
 
+# AI Configuration with sensitive keys
+/src/app/config/ai-config.ts
+
 # Angular CLI and build artefacts
 /.angular-cli.json
 /.ng/

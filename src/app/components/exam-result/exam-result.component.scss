@@ -353,7 +353,118 @@
   color: #ffc107;
 }
 
-/* Explanation */
+/* AI Explanation Section */
+.ai-explanation-section {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.ai-explain-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+}
+
+.ai-explain-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+}
+
+.ai-explain-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+/* AI Explanation */
+.ai-explanation {
+  background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
+  border: 2px solid #667eea;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 15px;
+  position: relative;
+}
+
+.ai-explanation::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 12px;
+  z-index: -1;
+}
+
+.ai-explanation-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-icon {
+  font-size: 18px;
+}
+
+.ai-explanation-content {
+  font-size: 14px;
+  color: #2c3e50;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.ai-explanation-content h1,
+.ai-explanation-content h2,
+.ai-explanation-content h3,
+.ai-explanation-content h4,
+.ai-explanation-content h5,
+.ai-explanation-content h6 {
+  color: #2c3e50;
+  margin: 12px 0 8px 0;
+  font-weight: 600;
+}
+
+.ai-explanation-content p {
+  margin: 8px 0;
+}
+
+.ai-explanation-content ul,
+.ai-explanation-content ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.ai-explanation-content li {
+  margin: 4px 0;
+}
+
+.ai-explanation-content strong {
+  color: #667eea;
+  font-weight: 600;
+}
+
+/* Original Explanation */
 .explanation {
   background: #f8f9fa;
   border-left: 4px solid #007bff;
