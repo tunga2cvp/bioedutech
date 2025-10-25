@@ -1,62 +1,89 @@
-<app-layout>
-  <div class="view-exercise-container">
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-state">
-      <div class="spinner"></div>
-      <p>Đang tải bài tập...</p>
-    </div>
+<!-- Header Section -->
+<app-teacher-header></app-teacher-header>
 
-    <!-- Exercise Content -->
-    <div *ngIf="!isLoading && exercise" class="exercise-content">
-      <!-- Header -->
-      <div class="exercise-header">
-        <div class="exercise-info">
-          <h1>{{ exercise.title }}</h1>
-          <p class="exercise-description">{{ exercise.description }}</p>
-          <div class="exercise-meta">
-            <span class="meta-item">
-              <strong>Số câu hỏi:</strong> {{ exercise.totalQuestions || exercise.questions.length }}
-            </span>
-            <span class="meta-item published">
-              <strong>Trạng thái:</strong> Đã xuất bản
-            </span>
-          </div>
-        </div>
-        <div class="exercise-actions">
-          <button class="btn btn-secondary" (click)="backToExerciseList()">
-            ← Quay lại
-          </button>
-        </div>
+<!-- Main Content Section -->
+<main class="main-content">
+  <div class="container">
+    <div class="view-exercise-container">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Đang tải bài tập...</p>
       </div>
 
-      <!-- Questions List -->
-      <div class="questions-list">
-        <h2>Danh sách câu hỏi</h2>
-        <div *ngFor="let question of exercise.questions; let i = index" class="question-item">
-          <div class="question-header">
-            <h3>Câu {{ i + 1 }}: {{ question.content }}</h3>
-            <span class="question-type">{{ question.type === 'multiple' ? 'Nhiều đáp án' : 'Một đáp án' }}</span>
+      <!-- Exercise Content -->
+      <div *ngIf="!isLoading && exercise" class="exercise-content">
+        <!-- Exercise Header -->
+        <div class="exercise-header">
+          <div class="exercise-info">
+            <h1>{{ exercise.title }}</h1>
+            <p class="exercise-description">{{ exercise.description }}</p>
+            <div class="exercise-meta">
+              <span class="meta-item">
+                <strong>Số câu hỏi:</strong> {{ exercise.totalQuestions || exercise.questions.length }}
+              </span>
+              <span class="meta-item published">
+                <strong>Trạng thái:</strong> Đã xuất bản
+              </span>
+            </div>
           </div>
-          
-          <div *ngIf="question.imageUrl" class="question-image">
-            <img [src]="getImageUrl(question.imageUrl)" alt="Ảnh minh họa câu {{ i + 1 }}">
+          <div class="exercise-actions">
+            <button class="btn btn-secondary" (click)="backToExerciseList()">
+              ← Quay lại
+            </button>
           </div>
+        </div>
 
-          <div class="answer-options">
-            <div *ngFor="let option of question.options; let j = index" class="option-item">
-              <div class="option-content">
-                <span class="option-letter">{{ getOptionLetter(j) }})</span>
-                <span class="option-text">{{ option.content }}</span>
-                <span *ngIf="option.isCorrect" class="correct-indicator">✓</span>
+        <!-- Questions List -->
+        <div class="questions-list">
+          <div class="review-header">
+            <h2>Chi tiết bài tập</h2>
+            <div class="review-stats">
+              <div class="stat-item">
+                <span class="stat-label">Tổng câu hỏi:</span>
+                <span class="stat-value">{{ exercise.questions.length }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Loại câu hỏi:</span>
+                <span class="stat-value">{{ getQuestionTypeCount() }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Trạng thái:</span>
+                <span class="stat-value published">Đã xuất bản</span>
               </div>
             </div>
           </div>
+          <div *ngFor="let question of exercise.questions; let i = index" class="question-item">
+            <div class="question-header">
+              <h3>Câu {{ i + 1 }}: {{ question.content }}</h3>
+              <span class="question-type">{{ question.type === 'multiple' ? 'Nhiều đáp án' : 'Một đáp án' }}</span>
+            </div>
+            
+            <div *ngIf="question.imageUrl" class="question-image">
+              <img [src]="getImageUrl(question.imageUrl)" alt="Ảnh minh họa câu {{ i + 1 }}">
+            </div>
 
-          <div *ngIf="question.explanation" class="question-explanation">
-            <strong>Giải thích:</strong> {{ question.explanation }}
+            <div class="answer-options">
+              <div *ngFor="let option of question.options; let j = index" 
+                   class="option-item" 
+                   [class.correct-answer]="option.isCorrect">
+                <div class="option-content">
+                  <span class="option-letter">{{ getOptionLetter(j) }})</span>
+                  <span class="option-text">{{ option.content }}</span>
+                  <span *ngIf="option.isCorrect" class="correct-indicator">✓</span>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="question.explanation" class="question-explanation">
+              <strong>Giải thích:</strong> {{ question.explanation }}
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</app-layout>
+</main>
+
+<!-- Footer Section -->
+<app-view-exercise-footer></app-view-exercise-footer>

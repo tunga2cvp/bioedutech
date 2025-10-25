@@ -519,4 +519,23 @@ export class ApiService {
   getTeachers(page: number = 1, limit: number = 100): Observable<UsersResponse> {
     return this.getUsers(page, limit, 'teacher');
   }
+
+  // Download Excel template for student registration
+  downloadExcelTemplate(): Observable<Blob> {
+    console.log('📥 Downloading Excel template from API:', {
+      url: `${this.baseUrl}/register_excel/template`
+    });
+
+    return this.http.get(`${this.baseUrl}/register_excel/template`, {
+      responseType: 'blob'
+    }).pipe(
+      tap(() => {
+        console.log('✅ Excel template downloaded successfully');
+      }),
+      catchError(error => {
+        console.error('❌ Error downloading Excel template:', error);
+        return this.handleError(error);
+      })
+    );
+  }
 }

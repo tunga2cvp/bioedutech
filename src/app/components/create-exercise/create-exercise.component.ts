@@ -5,12 +5,12 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ExerciseService } from '../../services/exercise.service';
 import { ApiService, TestCreationRequest } from '../../services/api.service';
 import { CreateExerciseRequest, Question, QuestionParseResult, Exercise } from '../../models/exercise.model';
-import { LayoutComponent } from '../layout/layout.component';
+import { TeacherHeaderComponent } from '../teacher-header/teacher-header.component';
 
 @Component({
   selector: 'app-create-exercise',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LayoutComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TeacherHeaderComponent],
   templateUrl: './create-exercise.component.html',
   styleUrls: ['./create-exercise.component.scss']
 })

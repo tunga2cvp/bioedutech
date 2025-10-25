@@ -298,9 +298,32 @@ export class ExcelService {
   }
 
   /**
-   * Download Excel template
+   * Download Excel template from API
    */
   downloadTemplate(): void {
+    this.apiService.downloadExcelTemplate().subscribe({
+      next: (blob: Blob) => {
+        // Create download link
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'student_template.xlsx';
+        link.click();
+        
+        // Clean up
+        URL.revokeObjectURL(link.href);
+      },
+      error: (error) => {
+        console.error('Error downloading template from API:', error);
+        // Fallback to local template generation
+        this.downloadLocalTemplate();
+      }
+    });
+  }
+
+  /**
+   * Fallback method to generate template locally if API fails
+   */
+  private downloadLocalTemplate(): void {
     // Create workbook and worksheet
     const wb = XLSX.utils.book_new();
     

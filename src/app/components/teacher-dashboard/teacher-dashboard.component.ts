@@ -13,6 +13,7 @@ import { ExerciseService } from '../../services/exercise.service';
 import { ApiService, UsersResponse, User } from '../../services/api.service';
 import { TeacherUser } from '../../models/user.model';
 import { ExerciseStats } from '../../models/exercise.model';
+import { TeacherHeaderComponent } from '../teacher-header/teacher-header.component';
 
 
 @Component({
@@ -23,7 +24,8 @@ import { ExerciseStats } from '../../models/exercise.model';
     MatIconModule,
     MatButtonModule,
     MatCardModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    TeacherHeaderComponent
   ],
   templateUrl: './teacher-dashboard.component.html',
   styleUrl: './teacher-dashboard.component.scss'

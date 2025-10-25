@@ -4,12 +4,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ExerciseService } from '../../services/exercise.service';
 import { ApiService } from '../../services/api.service';
 import { Exercise } from '../../models/exercise.model';
-import { LayoutComponent } from '../layout/layout.component';
+import { TeacherHeaderComponent } from '../teacher-header/teacher-header.component';
+import { ViewExerciseFooterComponent } from '../view-exercise-footer/view-exercise-footer.component';
 
 @Component({
   selector: 'app-view-exercise',
   standalone: true,
-  imports: [CommonModule, LayoutComponent],
+  imports: [CommonModule, TeacherHeaderComponent, ViewExerciseFooterComponent],
   templateUrl: './view-exercise.component.html',
   styleUrls: ['./view-exercise.component.scss']
 })
@@ -69,5 +70,20 @@ export class ViewExerciseComponent implements OnInit {
   getImageUrl(filename: string): string {
     if (!filename) return '';
     return this.apiService.getImageUrl(filename);
+  }
+
+  getQuestionTypeCount(): string {
+    if (!this.exercise) return '0';
+    
+    const singleChoice = this.exercise.questions.filter(q => q.type === 'single').length;
+    const multipleChoice = this.exercise.questions.filter(q => q.type === 'multiple').length;
+    
+    if (singleChoice > 0 && multipleChoice > 0) {
+      return `${singleChoice} trắc nghiệm, ${multipleChoice} nhiều đáp án`;
+    } else if (singleChoice > 0) {
+      return `${singleChoice} trắc nghiệm`;
+    } else {
+      return `${multipleChoice} nhiều đáp án`;
+    }
   }
 }

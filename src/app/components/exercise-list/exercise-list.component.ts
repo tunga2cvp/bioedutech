@@ -5,11 +5,12 @@ import { Router } from '@angular/router';
 import { ExerciseService } from '../../services/exercise.service';
 import { Exercise } from '../../models/exercise.model';
 import { ExerciseCardComponent } from '../exercise-card/exercise-card.component';
+import { TeacherHeaderComponent } from '../teacher-header/teacher-header.component';
 
 @Component({
   selector: 'app-exercise-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ExerciseCardComponent],
+  imports: [CommonModule, FormsModule, ExerciseCardComponent, TeacherHeaderComponent],
   templateUrl: './exercise-list.component.html',
   styleUrls: ['./exercise-list.component.scss']
 })
@@ -21,7 +22,7 @@ export class ExerciseListComponent implements OnInit {
 
   constructor(
     private exerciseService: ExerciseService,
-    private router: Router
+    public router: Router
   ) {}
 
   ngOnInit(): void {
@@ -95,13 +96,6 @@ export class ExerciseListComponent implements OnInit {
     this.applyFilters();
   }
 
-  createNewExercise(): void {
-    this.router.navigate(['/create-exercise']);
-  }
-
-  goToDashboard(): void {
-    this.router.navigate(['/teacher-dashboard']);
-  }
 
 
 

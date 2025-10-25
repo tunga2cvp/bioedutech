@@ -11,7 +11,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -19,7 +18,8 @@ import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { ExcelService } from '../../services/excel.service';
 import { StudentManagementService } from '../../services/student-management.service';
-import { LayoutComponent } from '../layout/layout.component';
+import { TeacherHeaderComponent } from '../teacher-header/teacher-header.component';
+import { StudentFooterComponent } from '../student-footer/student-footer.component';
 import { StudentUser } from '../../models/user.model';
 
 @Component({
@@ -37,9 +37,9 @@ import { StudentUser } from '../../models/user.model';
     MatTableModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    MatTabsModule,
     MatMenuModule,
-    LayoutComponent
+    TeacherHeaderComponent,
+    StudentFooterComponent
   ],
   templateUrl: './student-management.component.html',
   styleUrl: './student-management.component.scss'
@@ -50,27 +50,13 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
   selectedFile: File | null = null;
   isDragOver = false;
   isUploading = false;
-  isQuickAdding = false;
-  selectedTab = 0; // 0: Upload Excel, 1: Quick Add
   
   students: StudentUser[] = [];
   filteredStudents: StudentUser[] = [];
   searchTerm = '';
-  selectedGrade = '';
   
-  quickAddForm = {
-    name: '',
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    grade: 12 as 10 | 11 | 12,
-    class: '',
-    school: '',
-    studentId: ''
-  };
   
-  displayedColumns: string[] = ['name', 'grade', 'class', 'school', 'status', 'actions'];
+  displayedColumns: string[] = ['name', 'username', 'status', 'actions'];
 
   constructor(
     private authService: AuthService,
@@ -96,7 +82,7 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(['/teacher']);
+    this.router.navigate(['/teacher-dashboard']);
   }
 
   onDragOver(event: DragEvent): void {
@@ -220,12 +206,11 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
     this.filteredStudents = this.students.filter(student => {
       const matchesSearch = !this.searchTerm || 
         student.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        student.username.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         student.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         student.studentId.toLowerCase().includes(this.searchTerm.toLowerCase());
       
-      const matchesGrade = !this.selectedGrade || student.grade.toString() === this.selectedGrade;
-      
-      return matchesSearch && matchesGrade;
+      return matchesSearch;
     });
   }
 
@@ -246,120 +231,4 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  onQuickAddSubmit(): void {
-    if (!this.validateQuickAddForm()) {
-      return;
-    }
-
-    this.isQuickAdding = true;
-
-    // Create new student
-    const newStudent: StudentUser = {
-      id: Date.now().toString(), // Simple ID generation
-      username: this.quickAddForm.username,
-      email: this.quickAddForm.email,
-      role: 'student',
-      name: this.quickAddForm.name,
-      createdAt: new Date(),
-      isActive: true,
-      grade: this.quickAddForm.grade,
-      school: this.quickAddForm.school,
-      class: this.quickAddForm.class,
-      studentId: this.quickAddForm.studentId,
-      password: this.quickAddForm.password
-    };
-
-    // Save student
-    this.studentManagementService.saveStudent(newStudent);
-    
-    // Reload students
-    this.loadStudents();
-    
-    // Reset form
-    this.resetQuickAddForm();
-    
-    this.snackBar.open(`Đã tạo tài khoản cho học sinh ${newStudent.name}`, 'Đóng', {
-      duration: 3000
-    });
-    
-    this.isQuickAdding = false;
-  }
-
-  private validateQuickAddForm(): boolean {
-    if (!this.quickAddForm.name || !this.quickAddForm.username || !this.quickAddForm.email || !this.quickAddForm.password ||
-        !this.quickAddForm.class || !this.quickAddForm.school || !this.quickAddForm.studentId) {
-      this.snackBar.open('Vui lòng điền đầy đủ thông tin', 'Đóng', {
-        duration: 3000
-      });
-      return false;
-    }
-
-    // Check password confirmation
-    if (this.quickAddForm.password !== this.quickAddForm.confirmPassword) {
-      this.snackBar.open('Mật khẩu xác nhận không khớp', 'Đóng', {
-        duration: 3000
-      });
-      return false;
-    }
-
-    // Check password length
-    if (this.quickAddForm.password.length < 6) {
-      this.snackBar.open('Mật khẩu phải có ít nhất 6 ký tự', 'Đóng', {
-        duration: 3000
-      });
-      return false;
-    }
-
-    // Check if username already exists
-    if (this.studentManagementService.isUsernameExists(this.quickAddForm.username)) {
-      this.snackBar.open('Tên đăng nhập đã tồn tại', 'Đóng', {
-        duration: 3000
-      });
-      return false;
-    }
-
-    // Check if email already exists
-    if (this.studentManagementService.isEmailExists(this.quickAddForm.email)) {
-      this.snackBar.open('Email đã tồn tại', 'Đóng', {
-        duration: 3000
-      });
-      return false;
-    }
-
-    // Check if student ID already exists
-    if (this.studentManagementService.isStudentIdExists(this.quickAddForm.studentId)) {
-      this.snackBar.open('Mã học sinh đã tồn tại', 'Đóng', {
-        duration: 3000
-      });
-      return false;
-    }
-
-    return true;
-  }
-
-  private generateUsername(name: string): string {
-    const normalizedName = name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-      .replace(/[^a-z0-9\s]/g, '') // Remove special characters
-      .replace(/\s+/g, '') // Remove spaces
-      .substring(0, 10); // Limit length
-    
-    return `student${normalizedName}${Math.floor(Math.random() * 1000)}`;
-  }
-
-  resetQuickAddForm(): void {
-    this.quickAddForm = {
-      name: '',
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      grade: 12 as 10 | 11 | 12,
-      class: '',
-      school: '',
-      studentId: ''
-    };
-  }
 }

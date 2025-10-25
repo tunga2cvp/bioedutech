@@ -1,0 +1,72 @@
+<header class="teacher-header">
+  <div class="header-container">
+    <!-- Logo và Brand -->
+    <div class="brand-section">
+      <div class="logo" (click)="goToHome()">
+        <img src="assets/logo.jpg" alt="BioEduTech Logo" class="logo-img">
+        <div class="logo-text">
+          <span class="brand-name">Sinh học cùng cô Thảo</span>
+          <p class="brand-tagline">Nền tảng học tập AI</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <div class="nav-section" *ngIf="isLoggedIn">
+      <button class="nav-btn" 
+              [class.active]="isActiveRoute('exercise-list')" 
+              (click)="goToExerciseList()">
+        <mat-icon>list</mat-icon>
+        <span>Bài tập</span>
+      </button>
+      <button class="nav-btn" 
+              [class.active]="isActiveRoute('create-exercise')" 
+              (click)="goToCreateExercise()">
+        <mat-icon>add</mat-icon>
+        <span>Tạo bài</span>
+      </button>
+      <button class="nav-btn" 
+              [class.active]="isActiveRoute('student-management')" 
+              (click)="goToStudentManagement()">
+        <mat-icon>group</mat-icon>
+        <span>Học sinh</span>
+      </button>
+      <button class="nav-btn" 
+              [class.active]="isActiveRoute('reports')" 
+              (click)="goToReports()">
+        <mat-icon>assessment</mat-icon>
+        <span>Báo cáo</span>
+      </button>
+    </div>
+
+    <!-- Spacer for center alignment -->
+    <div class="spacer"></div>
+
+    <!-- User Section -->
+    <div class="user-section" *ngIf="isLoggedIn">
+      <div class="user-info">
+        <div class="user-avatar">
+          <span class="avatar-text">{{ currentUser?.name?.charAt(0) || 'T' }}</span>
+        </div>
+        <div class="user-details">
+          <span class="user-name">{{ currentUser?.name || 'Giáo viên' }}</span>
+          <span class="user-role">Giáo viên</span>
+        </div>
+      </div>
+      
+      <div class="user-actions">
+        <button class="action-btn logout-btn" (click)="logout()" title="Đăng xuất" mat-icon-button>
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Login Button (when not logged in) -->
+    <div class="login-section" *ngIf="!isLoggedIn">
+      <button class="login-btn" (click)="goToHome()">
+        <mat-icon>login</mat-icon>
+        Đăng nhập
+      </button>
+    </div>
+  </div>
+</header>

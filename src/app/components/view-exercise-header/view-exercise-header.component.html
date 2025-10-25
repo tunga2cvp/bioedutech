@@ -1,0 +1,27 @@
+<!-- Header Section -->
+<header class="header">
+  <div class="container">
+    <div class="logo-section">
+      <div class="logo" (click)="goToLandingPage()">
+        <img src="assets/logo.jpg" alt="BioEduTech Logo" class="logo-icon">
+        <div class="logo-text">
+          <h1>Sinh học cùng cô Thảo</h1>
+          <p>Ôn luyện, tài liệu và trắc nghiệm cho học sinh THPT</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="auth-buttons">
+      <div class="user-info">
+        <span class="user-name">{{ currentUser?.name || 'Giáo viên' }}</span>
+        <span class="user-role">Giáo viên</span>
+      </div>
+      <button class="btn btn-outline" (click)="goToExerciseList()">
+        📚 Danh sách bài tập
+      </button>
+      <button class="btn btn-outline" (click)="logout()">
+        Đăng xuất
+      </button>
+    </div>
+  </div>
+</header>

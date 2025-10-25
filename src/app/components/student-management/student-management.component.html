@@ -1,207 +1,104 @@
-<app-layout>
-  <div class="student-management-container">
-    <!-- Header Section -->
-    <div class="management-header">
-      <div class="container">
-        <div class="header-content">
-          <div class="header-info">
-            <button mat-icon-button class="back-button" (click)="goBack()">
-              <mat-icon>arrow_back</mat-icon>
-            </button>
-            <div class="header-text">
-              <h1>Quản lý học sinh</h1>
-              <p>Thêm và quản lý tài khoản học sinh trong lớp học</p>
-            </div>
+<!-- Teacher Header -->
+<app-teacher-header></app-teacher-header>
+
+<div class="student-management-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <div class="header-content">
+        <div class="header-info">
+          <div class="header-text">
+            <h1>Quản lý học sinh</h1>
+            <p>Thêm và quản lý tài khoản học sinh trong lớp học</p>
           </div>
-          <div class="header-actions">
-            <button mat-raised-button (click)="downloadTemplate()">
-              <mat-icon>download</mat-icon>
-              Tải template Excel
-            </button>
-          </div>
+        </div>
+        <div class="header-actions">
+          <button mat-raised-button (click)="downloadTemplate()">
+            <mat-icon>download</mat-icon>
+            Tải template Excel
+          </button>
         </div>
       </div>
     </div>
+  </div>
 
     <!-- Main Content -->
     <div class="management-content">
       <div class="container">
-        <!-- Tab Navigation -->
-        <mat-tab-group [(selectedIndex)]="selectedTab" class="student-tabs">
-      <!-- Upload Tab -->
-      <mat-tab label="Upload file Excel/CSV">
-        <ng-template matTabContent>
-          <section class="upload-section">
-            <mat-card class="upload-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>upload_file</mat-icon>
-                  Tải lên file Excel/CSV
-                </mat-card-title>
-                <mat-card-subtitle>
-                  Chọn file Excel (.xlsx, .xls) hoặc CSV (.csv) chứa danh sách học sinh (bao gồm mật khẩu) để thêm vào hệ thống
-                </mat-card-subtitle>
-              </mat-card-header>
-              
-              <mat-card-content>
-                <div class="upload-area" 
-                     [class.dragover]="isDragOver"
-                     (dragover)="onDragOver($event)"
-                     (dragleave)="onDragLeave($event)"
-                     (drop)="onDrop($event)"
-                     (click)="fileInput.click()">
-                  
-                  <div class="upload-content" *ngIf="!selectedFile">
-                    <mat-icon class="upload-icon">cloud_upload</mat-icon>
-                    <h3>Kéo thả file Excel/CSV vào đây</h3>
-                    <p>hoặc click để chọn file</p>
-                    <button mat-raised-button color="primary" type="button">
-                      <mat-icon>folder_open</mat-icon>
-                      Chọn file
-                    </button>
-                  </div>
-                  
-                  <div class="file-selected" *ngIf="selectedFile">
-                    <mat-icon class="file-icon">description</mat-icon>
-                    <div class="file-info">
-                      <h4>{{ selectedFile.name }}</h4>
-                      <p>{{ (selectedFile.size / 1024).toFixed(1) }} KB</p>
-                    </div>
-                    <button mat-icon-button (click)="removeFile()" class="remove-btn">
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  </div>
-                </div>
+        <!-- Upload Section -->
+        <section class="upload-section">
+          <mat-card class="upload-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>upload_file</mat-icon>
+                Tải lên file Excel/CSV
+              </mat-card-title>
+              <mat-card-subtitle>
+                Chọn file Excel (.xlsx, .xls) hoặc CSV (.csv) chứa danh sách học sinh (bao gồm mật khẩu) để thêm vào hệ thống
+              </mat-card-subtitle>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="upload-area" 
+                   [class.dragover]="isDragOver"
+                   (dragover)="onDragOver($event)"
+                   (dragleave)="onDragLeave($event)"
+                   (drop)="onDrop($event)"
+                   (click)="fileInput.click()">
                 
-                <input #fileInput 
-                       type="file" 
-                       accept=".xlsx,.xls,.csv" 
-                       (change)="onFileSelected($event)"
-                       style="display: none;">
-                
-                <div class="upload-actions" *ngIf="selectedFile">
-                  <button mat-raised-button 
-                          color="primary" 
-                          (click)="uploadFile()"
-                          [disabled]="isUploading">
-                    <mat-icon>upload</mat-icon>
-                    <span *ngIf="!isUploading">Upload file</span>
-                    <span *ngIf="isUploading">Đang xử lý...</span>
-                  </button>
-                  <button mat-button (click)="removeFile()">
-                    Hủy
+                <div class="upload-content" *ngIf="!selectedFile">
+                  <mat-icon class="upload-icon">cloud_upload</mat-icon>
+                  <h3>Kéo thả file Excel/CSV vào đây</h3>
+                  <p>hoặc click để chọn file</p>
+                  <button mat-raised-button color="primary" type="button">
+                    <mat-icon>folder_open</mat-icon>
+                    Chọn file
                   </button>
                 </div>
                 
-                <div class="upload-help">
-                  <p><strong>Hướng dẫn:</strong></p>
-                  <ul>
-                    <li>Tải template Excel để xem định dạng dữ liệu</li>
-                    <li>File phải chứa các cột: name, username, email, password, grade, class, school, studentId</li>
-                    <li>Dung lượng file tối đa: 10MB</li>
-                  </ul>
+                <div class="file-selected" *ngIf="selectedFile">
+                  <mat-icon class="file-icon">description</mat-icon>
+                  <div class="file-info">
+                    <h4>{{ selectedFile.name }}</h4>
+                    <p>{{ (selectedFile.size / 1024).toFixed(1) }} KB</p>
+                  </div>
+                  <button mat-icon-button (click)="removeFile()" class="remove-btn">
+                    <mat-icon>close</mat-icon>
+                  </button>
                 </div>
-              </mat-card-content>
-            </mat-card>
-          </section>
-        </ng-template>
-      </mat-tab>
-
-      <!-- Quick Add Tab -->
-      <mat-tab label="Thêm học sinh nhanh">
-        <ng-template matTabContent>
-          <section class="quick-add-section">
-            <mat-card class="quick-add-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>person_add</mat-icon>
-                  Tạo tài khoản học sinh trực tiếp
-                </mat-card-title>
-                <mat-card-subtitle>
-                  Điền thông tin để tạo tài khoản học sinh ngay lập tức
-                </mat-card-subtitle>
-              </mat-card-header>
+              </div>
               
-              <mat-card-content>
-                <form (ngSubmit)="onQuickAddSubmit()" class="quick-add-form">
-                  <div class="form-row">
-                    <mat-form-field appearance="outline" class="form-field">
-                      <mat-label>Họ tên</mat-label>
-                      <input matInput [(ngModel)]="quickAddForm.name" name="name" required>
-                    </mat-form-field>
-                    
-                    <mat-form-field appearance="outline" class="form-field">
-                      <mat-label>Tên đăng nhập</mat-label>
-                      <input matInput [(ngModel)]="quickAddForm.username" name="username" required>
-                    </mat-form-field>
-                  </div>
-                  
-                  <div class="form-row">
-                    <mat-form-field appearance="outline" class="form-field">
-                      <mat-label>Email</mat-label>
-                      <input matInput type="email" [(ngModel)]="quickAddForm.email" name="email" required>
-                    </mat-form-field>
-                    
-                    <mat-form-field appearance="outline" class="form-field">
-                      <mat-label>Mật khẩu</mat-label>
-                      <input matInput type="password" [(ngModel)]="quickAddForm.password" name="password" required>
-                    </mat-form-field>
-                  </div>
-                  
-                  <div class="form-row">
-                    <mat-form-field appearance="outline" class="form-field">
-                      <mat-label>Xác nhận mật khẩu</mat-label>
-                      <input matInput type="password" [(ngModel)]="quickAddForm.confirmPassword" name="confirmPassword" required>
-                    </mat-form-field>
-                    
-                    <mat-form-field appearance="outline" class="form-field">
-                      <mat-label>Lớp</mat-label>
-                      <mat-select [(ngModel)]="quickAddForm.grade" name="grade" required>
-                        <mat-option value="10">Lớp 10</mat-option>
-                        <mat-option value="11">Lớp 11</mat-option>
-                        <mat-option value="12">Lớp 12</mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                  
-                  <div class="form-row">
-                    <mat-form-field appearance="outline" class="form-field">
-                      <mat-label>Lớp học</mat-label>
-                      <input matInput [(ngModel)]="quickAddForm.class" name="class" required>
-                    </mat-form-field>
-                    
-                    <mat-form-field appearance="outline" class="form-field">
-                      <mat-label>Trường học</mat-label>
-                      <input matInput [(ngModel)]="quickAddForm.school" name="school" required>
-                    </mat-form-field>
-                  </div>
-                  
-                  <div class="form-row">
-                    <mat-form-field appearance="outline" class="form-field">
-                      <mat-label>Mã học sinh</mat-label>
-                      <input matInput [(ngModel)]="quickAddForm.studentId" name="studentId" required>
-                    </mat-form-field>
-                    
-                    <div class="form-field"></div> <!-- Empty div for spacing -->
-                  </div>
-                  
-                  <div class="form-actions">
-                    <button mat-raised-button color="primary" type="submit" [disabled]="isQuickAdding">
-                      <mat-icon>add</mat-icon>
-                      <span *ngIf="!isQuickAdding">Thêm học sinh</span>
-                      <span *ngIf="isQuickAdding">Đang thêm...</span>
-                    </button>
-                    <button mat-button type="button" (click)="resetQuickAddForm()">
-                      Làm mới
-                    </button>
-                  </div>
-                </form>
-              </mat-card-content>
-            </mat-card>
-          </section>
-        </ng-template>
-      </mat-tab>
-        </mat-tab-group>
+              <input #fileInput 
+                     type="file" 
+                     accept=".xlsx,.xls,.csv" 
+                     (change)="onFileSelected($event)"
+                     style="display: none;">
+              
+              <div class="upload-actions" *ngIf="selectedFile">
+                <button mat-raised-button 
+                        color="primary" 
+                        (click)="uploadFile()"
+                        [disabled]="isUploading">
+                  <mat-icon>upload</mat-icon>
+                  <span *ngIf="!isUploading">Upload file</span>
+                  <span *ngIf="isUploading">Đang xử lý...</span>
+                </button>
+                <button mat-button (click)="removeFile()">
+                  Hủy
+                </button>
+              </div>
+              
+              <div class="upload-help">
+                <p><strong>Hướng dẫn:</strong></p>
+                <ul>
+                  <li>Tải template Excel để xem định dạng dữ liệu</li>
+                  <li>File phải chứa các cột: name, username, email, password, grade, class, school, studentId</li>
+                  <li>Dung lượng file tối đa: 10MB</li>
+                </ul>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </section>
 
         <!-- Student List Section -->
         <section class="student-list-section">
@@ -217,25 +114,15 @@
         </mat-card-header>
         
         <mat-card-content>
-          <!-- Search and Filter -->
-          <div class="search-filter">
+          <!-- Search -->
+          <div class="search-section">
             <mat-form-field appearance="outline" class="search-field">
               <mat-label>Tìm kiếm học sinh</mat-label>
               <input matInput 
                      [(ngModel)]="searchTerm" 
                      (input)="filterStudents()"
-                     placeholder="Nhập tên, email hoặc mã học sinh...">
+                     placeholder="Nhập tên, tên đăng nhập, email hoặc mã học sinh...">
               <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline" class="filter-field">
-              <mat-label>Lọc theo lớp</mat-label>
-              <mat-select [(ngModel)]="selectedGrade" (selectionChange)="filterStudents()">
-                <mat-option value="">Tất cả lớp</mat-option>
-                <mat-option value="10">Lớp 10</mat-option>
-                <mat-option value="11">Lớp 11</mat-option>
-                <mat-option value="12">Lớp 12</mat-option>
-              </mat-select>
             </mat-form-field>
           </div>
           
@@ -252,30 +139,17 @@
                     </div>
                     <div class="student-details">
                       <h4>{{ student.name }}</h4>
-                      <p>{{ student.email }}</p>
                     </div>
                   </div>
                 </td>
               </ng-container>
               
-              <!-- Grade Column -->
-              <ng-container matColumnDef="grade">
-                <th mat-header-cell *matHeaderCellDef>Lớp</th>
+              <!-- Username Column -->
+              <ng-container matColumnDef="username">
+                <th mat-header-cell *matHeaderCellDef>Tên đăng nhập</th>
                 <td mat-cell *matCellDef="let student">
-                  <span class="grade-badge">{{ student.grade }}</span>
+                  <span class="username-text">{{ student.username }}</span>
                 </td>
-              </ng-container>
-              
-              <!-- Class Column -->
-              <ng-container matColumnDef="class">
-                <th mat-header-cell *matHeaderCellDef>Lớp học</th>
-                <td mat-cell *matCellDef="let student">{{ student.class }}</td>
-              </ng-container>
-              
-              <!-- School Column -->
-              <ng-container matColumnDef="school">
-                <th mat-header-cell *matHeaderCellDef>Trường</th>
-                <td mat-cell *matCellDef="let student">{{ student.school }}</td>
               </ng-container>
               
               <!-- Status Column -->
@@ -321,8 +195,9 @@
           </div>
         </mat-card-content>
       </mat-card>
-        </section>
-      </div>
-    </div>
+    </section>
   </div>
-</app-layout>
+</div>
+
+<!-- Student Footer -->
+<app-student-footer></app-student-footer>
