@@ -1,0 +1,263 @@
+<main class="teacher-reports-main">
+  <app-teacher-header></app-teacher-header>
+  
+  <div class="reports-container">
+    <div class="reports-header">
+      <h1>📊 Báo cáo kết quả bài thi</h1>
+      <p>Xem thống kê và chi tiết kết quả của học sinh</p>
+      
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="refreshReports()" [disabled]="isLoading">
+          <mat-icon>refresh</mat-icon>
+          Làm mới
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Đang tải dữ liệu báo cáo...</p>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="reports-content" *ngIf="!isLoading">
+      <mat-card class="reports-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>assessment</mat-icon>
+            Danh sách bài thi và thống kê
+          </mat-card-title>
+          <mat-card-subtitle>
+            Tổng cộng {{ examReports.length }} bài thi
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Search Bar -->
+          <div class="search-container" *ngIf="!isProcessingReports && examReports.length > 0">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Tìm kiếm bài thi theo tên</mat-label>
+              <input matInput 
+                     [value]="searchTerm"
+                     (input)="onSearchChange($event)"
+                     placeholder="Nhập tên bài thi...">
+              <mat-icon matSuffix>search</mat-icon>
+              <button mat-icon-button 
+                      matSuffix 
+                      *ngIf="searchTerm"
+                      (click)="clearSearch()"
+                      matTooltip="Xóa tìm kiếm">
+                <mat-icon>clear</mat-icon>
+              </button>
+            </mat-form-field>
+            
+            <div class="search-results-info" *ngIf="searchTerm">
+              <span class="results-count">
+                Tìm thấy {{ filteredExamReports.length }} bài thi
+              </span>
+            </div>
+          </div>
+
+          <!-- Skeleton Loading -->
+          <div class="skeleton-table" *ngIf="isProcessingReports">
+            <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
+              <div class="skeleton-cell skeleton-exam-name"></div>
+              <div class="skeleton-cell skeleton-submissions"></div>
+              <div class="skeleton-cell skeleton-score"></div>
+              <div class="skeleton-cell skeleton-time"></div>
+              <div class="skeleton-cell skeleton-last-submission"></div>
+              <div class="skeleton-cell skeleton-actions"></div>
+            </div>
+          </div>
+
+          <!-- Actual Table -->
+          <div class="table-container" *ngIf="!isProcessingReports">
+            <table mat-table [dataSource]="filteredExamReports" class="reports-table">
+              <!-- Exam Name Column -->
+              <ng-container matColumnDef="examName">
+                <th mat-header-cell *matHeaderCellDef>Tên bài thi</th>
+                <td mat-cell *matCellDef="let report">
+                  <div class="exam-info">
+                    <h4>{{ report.exam.exam_name }}</h4>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Total Submissions Column -->
+              <ng-container matColumnDef="totalSubmissions">
+                <th mat-header-cell *matHeaderCellDef>Số lượt làm</th>
+              <td mat-cell *matCellDef="let report">
+                <div class="submission-count">
+                  <mat-icon>people</mat-icon>
+                  <span [class.no-submissions]="report.totalSubmissions === 0">
+                    {{ report.totalSubmissions }}
+                  </span>
+                  <mat-spinner diameter="16" *ngIf="report.isLoading"></mat-spinner>
+                </div>
+              </td>
+              </ng-container>
+
+              <!-- Average Score Column -->
+              <ng-container matColumnDef="averageScore">
+                <th mat-header-cell *matHeaderCellDef>Điểm trung bình</th>
+              <td mat-cell *matCellDef="let report">
+                <div class="score-display" *ngIf="report.totalSubmissions > 0; else noDataOrLoading">
+                  <mat-chip [color]="getScoreColor(report.averageScore)" selected>
+                    {{ report.averageScore }}%
+                  </mat-chip>
+                </div>
+                <ng-template #noDataOrLoading>
+                  <div class="loading-or-no-data">
+                    <mat-spinner diameter="20" *ngIf="report.isLoading"></mat-spinner>
+                    <span class="no-data" *ngIf="report.isLoading">Đang tải...</span>
+                    <span class="no-data" *ngIf="!report.isLoading && report.totalSubmissions === 0">Chưa có dữ liệu</span>
+                  </div>
+                </ng-template>
+              </td>
+              </ng-container>
+
+              <!-- Average Time Taken Column -->
+              <ng-container matColumnDef="averageTimeTaken">
+                <th mat-header-cell *matHeaderCellDef>Thời gian làm trung bình</th>
+              <td mat-cell *matCellDef="let report">
+                <div class="time-display" *ngIf="report.totalSubmissions > 0; else noDataOrLoading">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ formatTimeTaken(report.averageTimeTaken) }}</span>
+                </div>
+                <ng-template #noDataOrLoading>
+                  <div class="loading-or-no-data">
+                    <mat-spinner diameter="20" *ngIf="report.isLoading"></mat-spinner>
+                    <span class="no-data" *ngIf="report.isLoading">Đang tải...</span>
+                    <span class="no-data" *ngIf="!report.isLoading && report.totalSubmissions === 0">Chưa có dữ liệu</span>
+                  </div>
+                </ng-template>
+              </td>
+              </ng-container>
+
+              <!-- Last Submission Column -->
+              <ng-container matColumnDef="lastSubmission">
+                <th mat-header-cell *matHeaderCellDef>Lần làm cuối</th>
+                <td mat-cell *matCellDef="let report">
+                  <div class="last-submission" *ngIf="report.lastSubmission; else noData">
+                    <mat-icon>schedule</mat-icon>
+                    {{ formatDate(report.lastSubmission) }}
+                  </div>
+                  <ng-template #noData>
+                    <span class="no-data">Chưa có dữ liệu</span>
+                  </ng-template>
+                </td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Thao tác</th>
+                <td mat-cell *matCellDef="let report">
+                  <button mat-icon-button 
+                          [disabled]="report.totalSubmissions === 0"
+                          (click)="viewExamDetails(report.exam.id, report.exam.exam_name)"
+                          matTooltip="Xem chi tiết kết quả">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Exam Details Modal -->
+    <div class="exam-details-overlay" *ngIf="selectedExamId" (click)="closeDetails()">
+      <div class="exam-details-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>
+            <mat-icon>assessment</mat-icon>
+            Chi tiết kết quả: {{ selectedExamName }}
+          </h2>
+          <button mat-icon-button (click)="closeDetails()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="modal-content">
+          <!-- Loading State for Details -->
+          <div class="loading-details" *ngIf="isLoadingDetails">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Đang tải chi tiết...</p>
+          </div>
+
+          <!-- Details Table -->
+          <div class="details-table-container" *ngIf="!isLoadingDetails && selectedExamResults.length > 0">
+            <table mat-table [dataSource]="selectedExamResults" class="details-table">
+              <!-- Student Name Column -->
+              <ng-container matColumnDef="studentName">
+                <th mat-header-cell *matHeaderCellDef>Học sinh</th>
+                <td mat-cell *matCellDef="let result">
+                  <div class="student-info">
+                    <h4>{{ result.student.name }}</h4>
+                    <p>{{ result.student.username }}</p>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Score Column -->
+              <ng-container matColumnDef="score">
+                <th mat-header-cell *matHeaderCellDef>Điểm số</th>
+                <td mat-cell *matCellDef="let result">
+                  <div class="score-info">
+                    <span class="score">{{ result.score }}/{{ result.max_score }}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Percentage Column -->
+              <ng-container matColumnDef="percentage">
+                <th mat-header-cell *matHeaderCellDef>Tỷ lệ đúng</th>
+                <td mat-cell *matCellDef="let result">
+                  <mat-chip [color]="getScoreColor(result.percentage)" selected>
+                    {{ result.percentage }}%
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Time Taken Column -->
+              <ng-container matColumnDef="timeTaken">
+                <th mat-header-cell *matHeaderCellDef>Thời gian làm</th>
+                <td mat-cell *matCellDef="let result">
+                  <div class="time-info">
+                    <mat-icon>schedule</mat-icon>
+                    {{ formatTimeTaken(result.time_taken) }}
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Timestamp Column -->
+              <ng-container matColumnDef="timestamp">
+                <th mat-header-cell *matHeaderCellDef>Thời gian nộp</th>
+                <td mat-cell *matCellDef="let result">
+                  <div class="timestamp-info">
+                    <mat-icon>access_time</mat-icon>
+                    {{ formatDate(result.timestamp) }}
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="detailColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: detailColumns;"></tr>
+            </table>
+          </div>
+
+          <!-- No Results Message -->
+          <div class="no-results" *ngIf="!isLoadingDetails && selectedExamResults.length === 0">
+            <mat-icon>info</mat-icon>
+            <p>Chưa có kết quả nào cho bài thi này</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

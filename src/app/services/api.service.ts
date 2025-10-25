@@ -248,6 +248,27 @@ export interface UsersResponse {
   limit?: number;
 }
 
+// Exam Results API Models
+export interface ExamResult {
+  max_score: number;
+  percentage: number;
+  score: number;
+  student: {
+    name: string;
+    username: string;
+  };
+  student_id: number;
+  submission_id: number;
+  time_taken: number;
+  timestamp: string;
+}
+
+export interface ExamResultsResponse {
+  count: number;
+  results: ExamResult[];
+  success: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -534,6 +555,38 @@ export class ApiService {
       }),
       catchError(error => {
         console.error('❌ Error downloading Excel template:', error);
+        return this.handleError(error);
+      })
+    );
+  }
+
+  // Get exam results API call - GET /exams/{exam_id}/results
+  getExamResults(examId: string | number, studentId?: number): Observable<ExamResultsResponse> {
+    let url = `${this.baseUrl}/exams/${examId}/results`;
+    
+    if (studentId) {
+      url += `?student_id=${studentId}`;
+    }
+
+    console.log('📥 Fetching exam results from API:', {
+      examId,
+      studentId,
+      url
+    });
+
+    return this.http.get<ExamResultsResponse>(url, {
+      headers: this.getHeaders()
+    }).pipe(
+      tap((response: ExamResultsResponse) => {
+        console.log('✅ Exam results fetched successfully:', {
+          examId,
+          count: response.count,
+          resultsCount: response.results?.length || 0,
+          success: response.success
+        });
+      }),
+      catchError(error => {
+        console.error('❌ Error fetching exam results:', error);
         return this.handleError(error);
       })
     );

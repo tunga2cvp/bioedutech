@@ -196,10 +196,7 @@ export class TeacherDashboardComponent implements OnInit, OnDestroy {
   }
 
   viewReports(): void {
-    this.snackBar.open('Tính năng xem báo cáo sẽ được phát triển sớm', 'Đóng', {
-      duration: 3000
-    });
-    // TODO: Navigate to reports page
+    this.router.navigate(['/reports']);
   }
 
 }

@@ -14,6 +14,7 @@ import { ApiTestComponent } from './components/api-test/api-test.component';
 import { StudentLayoutComponent } from './components/student-layout/student-layout.component';
 import { TakeExamComponent } from './components/take-exam/take-exam.component';
 import { ExamResultComponent } from './components/exam-result/exam-result.component';
+import { TeacherReportsComponent } from './components/teacher-reports/teacher-reports.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -28,6 +29,7 @@ export const routes: Routes = [
   { path: 'create-exercise', component: CreateExerciseComponent },
   { path: 'edit-exercise/:id', component: EditExerciseComponent },
   { path: 'exercise-list', component: ExerciseListComponent },
+  { path: 'reports', component: TeacherReportsComponent },
   { path: 'parse-demo', component: ParseDemoComponent },
   { path: 'api-test', component: ApiTestComponent },
   
