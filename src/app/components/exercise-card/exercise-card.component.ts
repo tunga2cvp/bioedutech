@@ -13,6 +13,7 @@ export class ExerciseCardComponent {
   @Input() exercise!: Exercise;
   
   @Output() viewExercise = new EventEmitter<Exercise>();
+  @Output() viewReport = new EventEmitter<Exercise>();
 
   getStatusBadgeClass(): string {
     return 'badge-published';
@@ -28,5 +29,13 @@ export class ExerciseCardComponent {
       event.stopPropagation();
     }
     this.viewExercise.emit(this.exercise);
+  }
+
+  onViewReport(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.viewReport.emit(this.exercise);
   }
 }

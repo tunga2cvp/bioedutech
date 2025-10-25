@@ -2,28 +2,23 @@
   <div class="exercise-header">
     <div class="exercise-title">
       <h4>{{ exercise.title }}</h4>
-      <span class="badge" [ngClass]="getStatusBadgeClass()">
-        {{ getStatusText() }}
-      </span>
-    </div>
-  </div>
-
-  <div class="exercise-content">
-    <p class="exercise-description">{{ exercise.description }}</p>
-    
-    <div class="exercise-meta">
-      <div class="meta-item">
-        <span class="meta-label">Số câu hỏi:</span>
-        <span class="meta-value">{{ exercise.totalQuestions || exercise.questions.length }}</span>
+      <div class="exercise-meta">
+        <span class="meta-badge">
+          {{ exercise.totalQuestions || exercise.questions.length }} câu hỏi
+        </span>
+        <span class="badge" [ngClass]="getStatusBadgeClass()">
+          {{ getStatusText() }}
+        </span>
       </div>
     </div>
   </div>
 
   <div class="exercise-footer">
-    <div class="exercise-actions-footer">
-      <button type="button" class="btn btn-primary btn-sm" (click)="onViewExercise($event)">
-        📖 Xem bài thi
-      </button>
-    </div>
+    <button type="button" class="btn btn-secondary" (click)="onViewReport($event)">
+      📊 Báo cáo
+    </button>
+    <button type="button" class="btn btn-primary" (click)="onViewExercise($event)">
+      📖 Xem bài thi
+    </button>
   </div>
 </div>

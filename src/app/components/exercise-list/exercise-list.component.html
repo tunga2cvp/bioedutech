@@ -67,6 +67,7 @@
         *ngFor="let exercise of filteredExercises"
         [exercise]="exercise"
         (viewExercise)="viewExercise($event)"
+        (viewReport)="viewReport($event)"
       ></app-exercise-card>
     </div>
   </div>

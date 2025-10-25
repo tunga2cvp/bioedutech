@@ -142,6 +142,44 @@ export class ExerciseListComponent implements OnInit {
     );
   }
 
+  viewReport(exercise: Exercise, event?: Event): void {
+    console.log('=== VIEW REPORT CLICKED ===');
+    console.log('Exercise object:', exercise);
+    console.log('Exercise ID:', exercise?.id);
+    console.log('Exercise title:', exercise?.title);
+    
+    if (!exercise) {
+      console.error('Exercise object is missing');
+      alert('Không thể xem báo cáo bài tập này. Vui lòng thử lại.');
+      return;
+    }
+    
+    if (!exercise.id) {
+      console.error('Exercise ID is missing:', exercise);
+      alert('Bài tập này chưa có ID. Vui lòng tạo lại bài tập.');
+      return;
+    }
+    
+    // Prevent default behavior if event is provided
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    this.router.navigate(['/exam-report', exercise.id]).then(
+      (success) => {
+        console.log('✅ Navigation to report successful:', success);
+        if (!success) {
+          console.error('Navigation returned false - route may not exist');
+        }
+      },
+      (error) => {
+        console.error('❌ Navigation to report failed:', error);
+        alert('Không thể chuyển đến trang báo cáo. Vui lòng thử lại.');
+      }
+    );
+  }
+
 
 
 

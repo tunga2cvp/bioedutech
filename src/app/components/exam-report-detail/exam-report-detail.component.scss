@@ -1,0 +1,521 @@
+// Exam Report Detail Styles
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+// Main Content Styles
+.main-content {
+  min-height: calc(100vh - 200px);
+  padding: 60px 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 80%, rgba(76, 175, 80, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(76, 175, 80, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+}
+
+// Page Header
+.page-header {
+  margin-bottom: 40px;
+  animation: fadeInUp 1s ease-out;
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      
+      .btn-back {
+        background: #f0f0f0;
+        color: #666;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: #e0e0e0;
+          transform: translateX(-2px);
+        }
+      }
+      
+      h1 {
+        color: #2e7d32;
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+  }
+}
+
+// Loading & Error States
+.loading-state, .error-state {
+  text-align: center;
+  padding: 80px 20px;
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #4CAF50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+  }
+  
+  .error-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+  
+  h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  p {
+    margin: 0 0 30px 0;
+    color: #666;
+    font-size: 16px;
+  }
+}
+
+// Report Content
+.report-content {
+  position: relative;
+  z-index: 1;
+}
+
+// Statistics Overview
+.stats-overview {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  
+  h2 {
+    margin: 0 0 30px 0;
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    
+    .stat-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      
+      .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+      }
+      
+      .stat-content {
+        h3 {
+          margin: 0 0 8px 0;
+          font-size: 2rem;
+          font-weight: 700;
+          color: #4CAF50;
+        }
+        
+        p {
+          margin: 0;
+          color: #666;
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// Charts Section
+.charts-section {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  
+  .chart-container {
+    h3 {
+      margin: 0 0 25px 0;
+      color: #333;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    
+    .score-distribution {
+      .distribution-bar {
+        margin-bottom: 15px;
+        
+        .bar-label {
+          font-size: 14px;
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 8px;
+        }
+        
+        .bar-container {
+          position: relative;
+          background: #f0f0f0;
+          border-radius: 10px;
+          height: 30px;
+          overflow: hidden;
+          
+          .bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            min-width: 2px;
+          }
+          
+          .bar-value {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Top Performers
+.top-performers {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  
+  h3 {
+    margin: 0 0 25px 0;
+    color: #333;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+  
+  .performers-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    
+    .performer-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      
+      .performer-rank {
+        background: #4CAF50;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+      }
+      
+      .performer-info {
+        flex: 1;
+        
+        h4 {
+          margin: 0 0 5px 0;
+          color: #333;
+          font-size: 1.1rem;
+          font-weight: 600;
+        }
+        
+        p {
+          margin: 0;
+          color: #666;
+          font-size: 14px;
+        }
+      }
+      
+      .performer-score {
+        text-align: center;
+        
+        .score-circle {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: 700;
+          font-size: 14px;
+          margin-bottom: 5px;
+        }
+        
+        p {
+          margin: 0;
+          font-size: 12px;
+          color: #666;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// Recent Submissions & All Results
+.recent-submissions, .all-results {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  
+  h3 {
+    margin: 0 0 25px 0;
+    color: #333;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+  
+  .submissions-table, .results-table {
+    .table-header {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+      gap: 15px;
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+    
+    .table-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+      gap: 15px;
+      padding: 20px;
+      border-bottom: 1px solid #f0f0f0;
+      align-items: center;
+      transition: background 0.3s ease;
+      
+      &:hover {
+        background: #f8f9fa;
+      }
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      .student-info {
+        h4 {
+          margin: 0 0 5px 0;
+          color: #333;
+          font-size: 1rem;
+          font-weight: 600;
+        }
+        
+        p {
+          margin: 0;
+          color: #666;
+          font-size: 14px;
+        }
+      }
+      
+      .score-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        text-align: center;
+        min-width: 60px;
+      }
+      
+      .grade-badge {
+        font-weight: 600;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+// Button Styles
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  &.btn-primary {
+    background: #4CAF50;
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: #45a049;
+      transform: translateY(-1px);
+    }
+    
+    &:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Footer Styles
+.footer {
+  background: #f8f9fa;
+  padding: 30px 0;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
+  
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: #999999;
+    line-height: 1.5;
+  }
+}
+
+// Animations
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .page-header {
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+      
+      .header-left {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        
+        h1 {
+          font-size: 2rem;
+        }
+      }
+    }
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+  }
+  
+  .performers-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .submissions-table, .results-table {
+    .table-header, .table-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      
+      .col-student, .col-score, .col-time, .col-date, .col-grade {
+        padding: 5px 0;
+        border-bottom: 1px solid #f0f0f0;
+        
+        &:before {
+          content: attr(data-label);
+          font-weight: 600;
+          color: #666;
+          display: block;
+          margin-bottom: 5px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 15px;
+  }
+  
+  .page-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
