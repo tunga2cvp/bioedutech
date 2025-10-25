@@ -958,3 +958,27 @@
     padding: 30px 20px;
   }
 }
+
+// Timer input specific styles
+.help-text {
+  margin-top: 5px;
+  
+  small {
+    color: #6c757d;
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+}
+
+// Timer input validation styles
+.form-group input[formControlName="timer"] {
+  &.invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  }
+  
+  &:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+  }
+}

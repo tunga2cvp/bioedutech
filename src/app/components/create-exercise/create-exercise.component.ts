@@ -35,7 +35,8 @@ export class CreateExerciseComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.exerciseForm = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(5)]]
+      title: ['', [Validators.required, Validators.minLength(5)]],
+      timer: ['', [this.timerValidator]]
     });
   }
 
@@ -60,7 +61,8 @@ export class CreateExerciseComponent implements OnInit {
         if (exercise) {
           this.originalExercise = exercise;
           this.exerciseForm.patchValue({
-            title: exercise.title
+            title: exercise.title,
+            timer: exercise.timer || ''
           });
           this.questions = [...exercise.questions];
           console.log('Exercise loaded successfully for edit:', exercise.title);
@@ -244,7 +246,8 @@ export class CreateExerciseComponent implements OnInit {
           .map((option, index) => option.isCorrect ? index : null)
           .filter(index => index !== null) as number[],
         image: question.imageUrl || undefined
-      }))
+      })),
+      timer: this.exerciseForm.value.timer || undefined
     };
 
     console.log('🚀 Gửi bài tập trực tiếp lên server...', {
@@ -352,6 +355,9 @@ export class CreateExerciseComponent implements OnInit {
       if (field.errors['max']) {
         return `Giá trị tối đa là ${field.errors['max'].max}`;
       }
+      if (field.errors['invalidTimer']) {
+        return 'Định dạng thời gian không hợp lệ. Ví dụ: 30m, 1h, 1h30m';
+      }
     }
     return '';
   }
@@ -359,5 +365,21 @@ export class CreateExerciseComponent implements OnInit {
   // Back to dashboard
   backToDashboard(): void {
     this.router.navigate(['/teacher-dashboard']);
+  }
+
+  // Timer validator
+  private timerValidator(control: any) {
+    if (!control.value || control.value.trim() === '') {
+      return null; // Optional field
+    }
+    
+    const timerPattern = /^(\d+h)?(\d+m)?$/;
+    const value = control.value.trim();
+    
+    if (!timerPattern.test(value)) {
+      return { invalidTimer: true };
+    }
+    
+    return null;
   }
 }

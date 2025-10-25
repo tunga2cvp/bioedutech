@@ -43,7 +43,8 @@ export class ExerciseService {
         startDate: exerciseData.startDate,
         endDate: exerciseData.endDate,
         assignedClasses: exerciseData.assignedClasses || [],
-        createdBy: this.getCurrentUserId()
+        createdBy: this.getCurrentUserId(),
+        timer: exerciseData.timer || undefined
       };
 
       // Chỉ lưu locally cho draft, không gọi API
@@ -561,7 +562,8 @@ export class ExerciseService {
       assignedClasses: test.assigned_classes || [],
       createdBy: test.created_by || 'teacher_001',
       // Thêm totalQuestions từ API để sử dụng trong template
-      totalQuestions: test.question_count || 0
+      totalQuestions: test.question_count || 0,
+      timer: test.timer || undefined
     };
 
     console.log('✅ Converted exercise with ID:', exercise.id);
@@ -621,7 +623,8 @@ export class ExerciseService {
       endDate: testDetail.end_date ? new Date(testDetail.end_date) : undefined,
       assignedClasses: testDetail.assigned_classes || [],
       createdBy: testDetail.created_by || 'teacher_001',
-      totalQuestions: testDetail.question_count || questions.length
+      totalQuestions: testDetail.question_count || questions.length,
+      timer: testDetail.timer || undefined
     };
 
     console.log('Converted exercise from detail:', exercise);
@@ -673,7 +676,8 @@ export class ExerciseService {
         }
 
         return questionData;
-      })
+      }),
+      timer: exercise.timer || undefined
     };
 
     console.log('🚀 Sending test data to server:', {

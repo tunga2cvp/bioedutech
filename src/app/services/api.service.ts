@@ -42,6 +42,7 @@ export interface ApiErrorResponse {
 export interface TestCreationRequest {
   exam_name: string;
   questions: TestQuestionRequest[];
+  timer?: string; // Timer field in format like "2m", "1h", etc.
 }
 
 export interface TestQuestionRequest {
@@ -81,6 +82,7 @@ export interface TestListItem {
   end_date?: string;
   assigned_classes?: string[];
   created_by?: string;
+  timer?: string; // Timer field in format like "2m", "1h", etc.
 }
 
 export interface TestListResponse {

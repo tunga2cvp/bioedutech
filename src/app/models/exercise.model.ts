@@ -15,6 +15,7 @@ export interface Exercise {
   assignedClasses?: string[]; // Danh sách lớp được phân bổ
   createdBy: string; // ID của giáo viên tạo
   totalQuestions?: number; // Tổng số câu hỏi từ API
+  timer?: string; // Timer field in format like "2m", "1h", etc.
 }
 
 export interface Question {
@@ -48,6 +49,7 @@ export interface CreateExerciseRequest {
   startDate?: Date;
   endDate?: Date;
   assignedClasses?: string[];
+  timer?: string; // Timer field in format like "2m", "1h", etc.
 }
 
 export interface QuestionParseResult {

@@ -32,6 +32,23 @@
         </div>
       </div>
 
+      <div class="form-group">
+        <label for="timer">Thời gian làm bài (tùy chọn)</label>
+        <input 
+          type="text" 
+          id="timer" 
+          formControlName="timer" 
+          placeholder="Ví dụ: 30m, 1h, 1h30m"
+          [class.invalid]="isFieldInvalid('timer')"
+        >
+        <div class="help-text">
+          <small>Nhập thời gian theo định dạng: 30m (30 phút), 1h (1 giờ), 1h30m (1 giờ 30 phút)</small>
+        </div>
+        <div class="error-message" *ngIf="isFieldInvalid('timer')">
+          {{ getFieldError('timer') }}
+        </div>
+      </div>
+
 
     </div>
 
