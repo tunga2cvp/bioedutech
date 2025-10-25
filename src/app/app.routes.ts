@@ -11,22 +11,51 @@ import { ViewExerciseComponent } from './components/view-exercise/view-exercise.
 import { CreateExerciseComponent as EditExerciseComponent } from './components/create-exercise/create-exercise.component';
 import { ParseDemoComponent } from './components/parse-demo/parse-demo.component';
 import { ApiTestComponent } from './components/api-test/api-test.component';
+import { StudentLayoutComponent } from './components/student-layout/student-layout.component';
+import { TakeExamComponent } from './components/take-exam/take-exam.component';
+import { ExamResultComponent } from './components/exam-result/exam-result.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'home', component: LandingPageComponent },
   { path: 'login', component: LoginComponent },
   { path: 'login-test', component: LoginTestComponent },
+  
+  // Teacher routes
   { path: 'teacher', component: TeacherDashboardComponent },
   { path: 'teacher-dashboard', component: TeacherDashboardComponent },
   { path: 'teacher/students', component: StudentManagementComponent },
   { path: 'create-exercise', component: CreateExerciseComponent },
   { path: 'edit-exercise/:id', component: EditExerciseComponent },
   { path: 'exercise-list', component: ExerciseListComponent },
-  { path: 'view-exercise/:id', component: ViewExerciseComponent },
   { path: 'parse-demo', component: ParseDemoComponent },
   { path: 'api-test', component: ApiTestComponent },
-  { path: 'student', component: StudentDashboardComponent },
-  { path: 'student-dashboard', component: StudentDashboardComponent },
+  
+  // Student routes with layout
+  {
+    path: 'student',
+    component: StudentLayoutComponent,
+    children: [
+      { path: '', component: StudentDashboardComponent },
+      { path: 'dashboard', component: StudentDashboardComponent },
+      { path: 'exam/:id', component: TakeExamComponent },
+      { path: 'exam-result/:id', component: ExamResultComponent }
+    ]
+  },
+  {
+    path: 'student-dashboard',
+    component: StudentLayoutComponent,
+    children: [
+      { path: '', component: StudentDashboardComponent }
+    ]
+  },
+  {
+    path: 'view-exercise/:id',
+    component: StudentLayoutComponent,
+    children: [
+      { path: '', component: ViewExerciseComponent }
+    ]
+  },
+  
   { path: '**', redirectTo: '' }
 ];

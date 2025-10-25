@@ -1,0 +1,12 @@
+<div class="student-layout">
+  <!-- Student Header -->
+  <app-student-header *ngIf="isStudent"></app-student-header>
+  
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+  
+  <!-- Student Footer -->
+  <app-student-footer *ngIf="isStudent"></app-student-footer>
+</div>

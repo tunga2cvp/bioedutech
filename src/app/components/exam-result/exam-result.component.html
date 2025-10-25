@@ -1,0 +1,142 @@
+<div class="exam-result-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Đang tải kết quả bài thi...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <div class="error-message">
+      <i class="error-icon">⚠️</i>
+      <p>{{ error }}</p>
+      <button class="back-btn" (click)="backToDashboard()">Quay lại Dashboard</button>
+    </div>
+  </div>
+
+  <!-- Result Content -->
+  <div *ngIf="exam && submissionResult && !isLoading && !error" class="result-content">
+    <!-- Header -->
+    <div class="result-header">
+      <div class="exam-info">
+        <h1 class="exam-title">{{ exam.exam_name }}</h1>
+        <p *ngIf="exam.description" class="exam-description">{{ exam.description }}</p>
+      </div>
+      
+      <!-- Overall Score -->
+      <div class="overall-score" [ngClass]="getScoreColor(submissionResult.percentage)">
+        <div class="score-circle">
+          <div class="score-number">{{ submissionResult.percentage }}%</div>
+          <div class="score-label">Điểm số</div>
+        </div>
+        <div class="score-details">
+          <div class="score-text">{{ getScoreText(submissionResult.percentage) }}</div>
+          <div class="score-breakdown">
+            {{ submissionResult.score }}/{{ submissionResult.max_score }} câu đúng
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="summary-stats">
+      <div class="stat-item">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ getCorrectCount() }}</div>
+          <div class="stat-label">Câu đúng</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon">❌</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ getIncorrectCount() }}</div>
+          <div class="stat-label">Câu sai</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon">📊</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ submissionResult.percentage }}%</div>
+          <div class="stat-label">Tỷ lệ đúng</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Question Results -->
+    <div class="questions-results">
+      <h2 class="section-title">Chi tiết từng câu hỏi</h2>
+      
+      <div class="questions-list">
+        <div 
+          *ngFor="let result of questionResults; let i = index"
+          class="question-result"
+          [ngClass]="{ 'correct': result.isCorrect, 'incorrect': !result.isCorrect }"
+        >
+          <div class="question-header">
+            <div class="question-number">
+              <span class="number">{{ result.questionIndex + 1 }}</span>
+              <span class="status-icon">{{ result.isCorrect ? '✅' : '❌' }}</span>
+            </div>
+            <div class="question-content">
+              <h3 class="question-title">{{ result.question.content }}</h3>
+              
+              <!-- Question Image -->
+              <div *ngIf="result.question.image" class="question-image">
+                <img 
+                  [src]="getImageUrl(result.question.image)" 
+                  [alt]="'Hình ảnh câu hỏi ' + (result.questionIndex + 1)"
+                  class="question-img"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Answer Options -->
+          <div class="answer-options">
+            <div 
+              *ngFor="let answer of result.question.answers; let j = index"
+              class="answer-option"
+              [ngClass]="{
+                'user-selected': result.userAnswers.includes(j),
+                'correct-answer': result.correctAnswers.includes(j),
+                'user-correct': result.userAnswers.includes(j) && result.correctAnswers.includes(j),
+                'user-incorrect': result.userAnswers.includes(j) && !result.correctAnswers.includes(j),
+                'missed-correct': !result.userAnswers.includes(j) && result.correctAnswers.includes(j)
+              }"
+            >
+              <span class="answer-letter">{{ getOptionLetter(j) }}.</span>
+              <span class="answer-text">{{ answer }}</span>
+              <span class="answer-status">
+                <span *ngIf="result.userAnswers.includes(j) && result.correctAnswers.includes(j)" class="status-correct">✓</span>
+                <span *ngIf="result.userAnswers.includes(j) && !result.correctAnswers.includes(j)" class="status-incorrect">✗</span>
+                <span *ngIf="!result.userAnswers.includes(j) && result.correctAnswers.includes(j)" class="status-missed">!</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Explanation -->
+          <div *ngIf="result.explanation" class="explanation">
+            <h4 class="explanation-title">Giải thích:</h4>
+            <p class="explanation-text">{{ result.explanation }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="back-dashboard-btn" (click)="backToDashboard()">
+        <i class="btn-icon">←</i>
+        Quay lại Dashboard
+      </button>
+      
+      <button class="retake-btn" (click)="retakeExam()">
+        <i class="btn-icon">🔄</i>
+        Làm lại bài thi
+      </button>
+    </div>
+  </div>
+</div>

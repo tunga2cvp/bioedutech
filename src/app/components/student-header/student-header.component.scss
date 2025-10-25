@@ -1,0 +1,299 @@
+.student-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 3px solid #5a67d8;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+}
+
+// Brand Section
+.brand-section {
+  display: flex;
+  align-items: center;
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+    
+    .logo-img {
+      width: 40px;
+      height: 40px;
+      margin-right: 0.75rem;
+      filter: brightness(0) invert(1); // Make logo white
+    }
+    
+    .brand-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+// Navigation Section
+.nav-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  
+  .nav-menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 2rem;
+    
+    .nav-item {
+      .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        cursor: pointer;
+        
+        .nav-icon {
+          margin-right: 0.5rem;
+          font-size: 1.1rem;
+        }
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          transform: translateY(-2px);
+        }
+        
+        &.active {
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+      }
+    }
+  }
+}
+
+// User Section
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    
+    .user-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      
+      .avatar-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: white;
+      }
+    }
+    
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      
+      .user-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: white;
+        line-height: 1.2;
+      }
+      
+      .user-role {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.2;
+      }
+    }
+  }
+  
+  .user-actions {
+    display: flex;
+    gap: 0.5rem;
+    
+    .action-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      .action-icon {
+        font-size: 1rem;
+      }
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+      
+      &.logout-btn:hover {
+        background: rgba(239, 68, 68, 0.3);
+      }
+    }
+  }
+}
+
+// Login Section
+.login-section {
+  .login-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    
+    .login-icon {
+      font-size: 1rem;
+    }
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .header-container {
+    padding: 0 1rem;
+    height: 60px;
+  }
+  
+  .brand-section .logo {
+    .logo-img {
+      width: 35px;
+      height: 35px;
+      margin-right: 0.5rem;
+    }
+    
+    .brand-name {
+      font-size: 1.3rem;
+    }
+  }
+  
+  .nav-section {
+    display: none; // Hide navigation on mobile
+  }
+  
+  .user-section {
+    .user-info {
+      .user-details {
+        display: none; // Hide user details on mobile
+      }
+      
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        
+        .avatar-text {
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .user-actions {
+      gap: 0.25rem;
+      
+      .action-btn {
+        width: 35px;
+        height: 35px;
+        
+        .action-icon {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header-container {
+    padding: 0 0.75rem;
+  }
+  
+  .brand-section .logo {
+    .logo-img {
+      width: 30px;
+      height: 30px;
+      margin-right: 0.25rem;
+    }
+    
+    .brand-name {
+      font-size: 1.1rem;
+    }
+  }
+  
+  .user-section {
+    .user-info {
+      .user-avatar {
+        width: 35px;
+        height: 35px;
+        
+        .avatar-text {
+          font-size: 0.9rem;
+        }
+      }
+    }
+    
+    .user-actions {
+      .action-btn {
+        width: 32px;
+        height: 32px;
+        
+        .action-icon {
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+}

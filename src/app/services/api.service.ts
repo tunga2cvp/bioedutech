@@ -131,6 +131,23 @@ export interface TestDetailResponse {
   created_by?: string;
 }
 
+// New Exam Submission API Models based on /exams/{exam_id}/submit
+export interface ExamSubmissionRequest {
+  student_id: number;
+  answers: number[][];
+  time_taken: number;
+}
+
+export interface ExamSubmissionResponse {
+  success: boolean;
+  student_id: number;
+  test_id: number;
+  submission_id: number;
+  score: number;
+  max_score: number;
+  percentage: number;
+}
+
 // Legacy interfaces for backward compatibility
 export interface TestSubmissionData {
   test_data: {
@@ -291,6 +308,23 @@ export class ApiService {
         } as TestDetailResponse;
       }),
       catchError(this.handleError)
+    );
+  }
+
+  // New Exam Submission API call - POST /exams/{exam_id}/submit
+  submitExam(examId: string | number, submissionData: ExamSubmissionRequest): Observable<ExamSubmissionResponse> {
+    console.log('📤 Submitting exam:', { examId, submissionData });
+    
+    return this.http.post<ExamSubmissionResponse>(`${this.baseUrl}/exams/${examId}/submit`, submissionData, {
+      headers: this.getHeaders()
+    }).pipe(
+      tap((response: ExamSubmissionResponse) => {
+        console.log('✅ Exam submitted successfully:', response);
+      }),
+      catchError(error => {
+        console.error('❌ Exam submission failed:', error);
+        return this.handleError(error);
+      })
     );
   }
 

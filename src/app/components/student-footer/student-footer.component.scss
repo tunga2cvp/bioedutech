@@ -1,0 +1,284 @@
+.student-footer {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: white;
+  margin-top: auto;
+  border-top: 3px solid #3498db;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+// Main Footer Content
+.footer-main {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 3rem;
+  padding: 3rem 0 2rem;
+}
+
+.footer-brand {
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+    
+    .footer-logo-img {
+      width: 35px;
+      height: 35px;
+      margin-right: 0.75rem;
+      filter: brightness(0) invert(1);
+    }
+    
+    .footer-brand-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: white;
+    }
+  }
+  
+  .footer-description {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+}
+
+.footer-links,
+.footer-support,
+.footer-contact {
+  .footer-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .footer-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    li {
+      margin-bottom: 0.75rem;
+      
+      .footer-link {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s ease;
+        cursor: pointer;
+        
+        &:hover {
+          color: #3498db;
+        }
+      }
+    }
+  }
+}
+
+.footer-contact {
+  .contact-info {
+    .contact-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      
+      .contact-icon {
+        margin-right: 0.75rem;
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
+      }
+    }
+  }
+}
+
+// Footer Bottom
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem 0;
+  
+  .footer-bottom-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .copyright {
+      p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+      }
+    }
+    
+    .footer-actions {
+      .scroll-top-btn {
+        width: 45px;
+        height: 45px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        .scroll-icon {
+          font-size: 1.2rem;
+        }
+        
+        &:hover {
+          background: #3498db;
+          transform: translateY(-3px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .footer-container {
+    padding: 0 1rem;
+  }
+  
+  .footer-main {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem 0 1.5rem;
+  }
+  
+  .footer-brand {
+    text-align: center;
+    
+    .footer-logo {
+      justify-content: center;
+    }
+  }
+  
+  .footer-links,
+  .footer-support,
+  .footer-contact {
+    text-align: center;
+    
+    .footer-menu {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      
+      li {
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  .footer-contact {
+    .contact-info {
+      .contact-item {
+        justify-content: center;
+      }
+    }
+  }
+  
+  .footer-bottom {
+    .footer-bottom-content {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-container {
+    padding: 0 0.75rem;
+  }
+  
+  .footer-main {
+    padding: 1.5rem 0 1rem;
+  }
+  
+  .footer-brand {
+    .footer-logo {
+      .footer-logo-img {
+        width: 30px;
+        height: 30px;
+        margin-right: 0.5rem;
+      }
+      
+      .footer-brand-name {
+        font-size: 1.2rem;
+      }
+    }
+    
+    .footer-description {
+      font-size: 0.9rem;
+    }
+  }
+  
+  .footer-links,
+  .footer-support,
+  .footer-contact {
+    .footer-title {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .footer-menu {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+  
+  .footer-contact {
+    .contact-info {
+      .contact-item {
+        font-size: 0.85rem;
+        
+        .contact-icon {
+          margin-right: 0.5rem;
+          width: 18px;
+        }
+      }
+    }
+  }
+  
+  .footer-bottom {
+    padding: 1rem 0;
+    
+    .footer-bottom-content {
+      .copyright p {
+        font-size: 0.85rem;
+      }
+      
+      .footer-actions {
+        .scroll-top-btn {
+          width: 40px;
+          height: 40px;
+          
+          .scroll-icon {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+  }
+}

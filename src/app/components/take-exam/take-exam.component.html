@@ -1,0 +1,155 @@
+<div class="take-exam-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Đang tải bài thi...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <div class="error-message">
+      <i class="error-icon">⚠️</i>
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="loadExam(examId!)">Thử lại</button>
+      <button class="back-btn" (click)="backToDashboard()">Quay lại</button>
+    </div>
+  </div>
+
+  <!-- Exam Content -->
+  <div *ngIf="exam && !isLoading && !error" class="exam-content">
+    <!-- Exam Header -->
+    <div class="exam-header">
+      <div class="exam-info">
+        <h1 class="exam-title">{{ exam.exam_name }}</h1>
+        <p *ngIf="exam.description" class="exam-description">{{ exam.description }}</p>
+        
+        <div class="exam-meta">
+          <div class="meta-item">
+            <i class="meta-icon">📝</i>
+            <span>{{ getTotalQuestions() }} câu hỏi</span>
+          </div>
+          
+          <div *ngIf="exam.time_limit" class="meta-item">
+            <i class="meta-icon">⏱️</i>
+            <span>Thời gian: {{ exam.time_limit }} phút</span>
+          </div>
+          
+          <div *ngIf="exam.max_score" class="meta-item">
+            <i class="meta-icon">🎯</i>
+            <span>Tổng điểm: {{ exam.max_score }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Timer -->
+      <div *ngIf="timeRemaining > 0" class="timer-container">
+        <div class="timer" [ngClass]="{ 'timer-warning': timeRemaining <= 300, 'timer-danger': timeRemaining <= 60 }">
+          <i class="timer-icon">⏰</i>
+          <span class="timer-text">{{ formatTime(timeRemaining) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div 
+          class="progress-fill" 
+          [style.width.%]="(getAnsweredQuestionsCount() / getTotalQuestions()) * 100"
+        ></div>
+      </div>
+      <div class="progress-text">
+        {{ getAnsweredQuestionsCount() }} / {{ getTotalQuestions() }} câu đã trả lời
+      </div>
+    </div>
+
+    <!-- Question Navigation -->
+    <div class="question-nav">
+      <div class="nav-buttons">
+        <button 
+          class="nav-btn" 
+          [disabled]="currentQuestionIndex === 0"
+          (click)="previousQuestion()"
+        >
+          ‹ Câu trước
+        </button>
+        
+        <button 
+          class="nav-btn" 
+          [disabled]="currentQuestionIndex === getTotalQuestions() - 1"
+          (click)="nextQuestion()"
+        >
+          Câu sau ›
+        </button>
+      </div>
+      
+      <div class="question-numbers">
+        <button 
+          *ngFor="let question of exam.questions; let i = index"
+          class="question-number"
+          [ngClass]="{ 
+            'active': currentQuestionIndex === i,
+            'answered': answers[i] && answers[i].selectedAnswers.length > 0
+          }"
+          (click)="goToQuestion(i)"
+        >
+          {{ i + 1 }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Current Question -->
+    <div class="question-container">
+      <div class="question-header">
+        <h3 class="question-title">
+          Câu {{ currentQuestionIndex + 1 }}: {{ exam.questions![currentQuestionIndex].content }}
+        </h3>
+      </div>
+      
+      <!-- Question Image -->
+      <div *ngIf="exam.questions![currentQuestionIndex].image" class="question-image">
+        <img 
+          [src]="getImageUrl(exam.questions![currentQuestionIndex].image)" 
+          [alt]="'Hình ảnh câu hỏi ' + (currentQuestionIndex + 1)"
+          class="question-img"
+        />
+      </div>
+      
+      <!-- Answer Options -->
+      <div class="answer-options">
+        <div 
+          *ngFor="let answer of exam.questions![currentQuestionIndex].answers; let i = index"
+          class="answer-option"
+        >
+          <label class="answer-label">
+            <input 
+              type="checkbox"
+              [checked]="isAnswerSelected(currentQuestionIndex, i)"
+              (change)="onCheckboxChange(currentQuestionIndex, i, $event)"
+              class="answer-checkbox"
+            />
+            <span class="answer-letter">{{ getOptionLetter(i) }}.</span>
+            <span class="answer-text">{{ answer }}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="back-dashboard-btn" (click)="backToDashboard()">
+        <i class="btn-icon">←</i>
+        Quay lại Dashboard
+      </button>
+      
+      <button 
+        class="submit-exam-btn" 
+        [disabled]="isSubmitting"
+        (click)="submitExam()"
+      >
+        <i class="btn-icon">📤</i>
+        {{ isSubmitting ? 'Đang nộp bài...' : 'Nộp bài thi' }}
+      </button>
+    </div>
+  </div>
+</div>
