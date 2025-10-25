@@ -32,7 +32,6 @@ import { LoginCredentials } from '../../models/user.model';
 export class LoginComponent {
   username: string = '';
   password: string = '';
-  userRole: 'teacher' | 'student' = 'student';
   isLoading: boolean = false;
 
   constructor(
@@ -56,7 +55,7 @@ export class LoginComponent {
     const credentials: LoginCredentials = {
       username: this.username,
       password: this.password,
-      role: this.userRole
+      role: 'student' // Default role, will be determined by server response
     };
     
     this.authService.login(credentials).subscribe({
@@ -70,8 +69,8 @@ export class LoginComponent {
             verticalPosition: 'top'
           });
           
-          // Navigate based on role
-          if (this.userRole === 'teacher') {
+          // Navigate based on role returned from server
+          if (result.user?.role === 'teacher') {
             this.router.navigate(['/teacher']);
           } else {
             this.router.navigate(['/student']);

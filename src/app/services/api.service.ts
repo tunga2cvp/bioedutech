@@ -16,6 +16,19 @@ export interface ApiAuthResponse {
     id: number;
     username: string;
     email: string;
+    role: 'teacher' | 'student';
+    name?: string;
+    grade?: number;
+    school?: string;
+    class?: string;
+    studentId?: string;
+    teacherId?: string;
+    subject?: string;
+    phone?: string;
+    department?: string;
+    experience?: number;
+    qualifications?: string[];
+    isVerified?: boolean;
   };
 }
 

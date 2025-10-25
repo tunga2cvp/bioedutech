@@ -14,49 +14,11 @@ export class AuthService {
   constructor(private apiService: ApiService) { }
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
-    if (credentials.role === 'teacher') {
-      // Fixed teacher account - không gọi API
-      if (credentials.username === 'giaovien' && credentials.password === '123456') {
-        const user: TeacherUser = {
-          id: '1',
-          username: 'giaovien',
-          email: 'giaovien@school.edu.vn',
-          role: 'teacher',
-          name: 'Cô Thảo',
-          createdAt: new Date(),
-          isActive: true,
-          teacherId: 'T001',
-          school: 'Trường THPT Mẫu',
-          subject: 'Sinh học',
-          phone: '0123456789',
-          department: 'Khoa học Tự nhiên',
-          experience: 5,
-          qualifications: ['Thạc sĩ Sinh học', 'Chứng chỉ Sư phạm'],
-          isVerified: true
-        };
-        
-        this.currentUserSubject.next(user);
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        
-        return of({
-          success: true,
-          user: user,
-          token: 'mock-jwt-token',
-          message: 'Đăng nhập thành công'
-        });
-      } else {
-        return of({
-          success: false,
-          message: 'Tài khoản giáo viên không tồn tại. Vui lòng sử dụng username: giaovien và password: 123456'
-        });
-      }
-    } else {
-      // Student accounts - gọi API
-      return this.loginStudentViaAPI(credentials);
-    }
+    // Tất cả đăng nhập đều gọi API, server sẽ trả về role
+    return this.loginViaAPI(credentials);
   }
 
-  private loginStudentViaAPI(credentials: LoginCredentials): Observable<AuthResponse> {
+  private loginViaAPI(credentials: LoginCredentials): Observable<AuthResponse> {
     const apiCredentials: ApiLoginCredentials = {
       username: credentials.username,
       password: credentials.password
@@ -65,27 +27,49 @@ export class AuthService {
     return this.apiService.loginStudent(apiCredentials).pipe(
       map((response: ApiAuthResponse) => {
         if (response.success) {
-          // Tạo StudentUser object từ API response
-          const studentUser: StudentUser = {
-            id: response.user.id.toString(),
-            username: response.user.username,
-            email: response.user.email,
-            role: 'student',
-            name: response.user.username, // Fallback name
-            createdAt: new Date(),
-            isActive: true,
-            grade: 12, // Default grade, có thể cập nhật từ API
-            school: 'Trường THPT Mẫu', // Default school
-            class: '12A1', // Default class
-            studentId: response.user.id.toString()
-          };
+          // Tạo User object từ API response dựa trên role từ server
+          let user: User;
+          
+          if (response.user.role === 'teacher') {
+            user = {
+              id: response.user.id.toString(),
+              username: response.user.username,
+              email: response.user.email,
+              role: 'teacher',
+              name: response.user.name || response.user.username,
+              createdAt: new Date(),
+              isActive: true,
+              teacherId: response.user.teacherId || response.user.id.toString(),
+              school: response.user.school || 'Trường THPT',
+              subject: response.user.subject || 'Sinh học',
+              phone: response.user.phone || '',
+              department: response.user.department || 'Khoa học Tự nhiên',
+              experience: response.user.experience || 0,
+              qualifications: response.user.qualifications || [],
+              isVerified: response.user.isVerified || false
+            } as TeacherUser;
+          } else {
+            user = {
+              id: response.user.id.toString(),
+              username: response.user.username,
+              email: response.user.email,
+              role: 'student',
+              name: response.user.name || response.user.username,
+              createdAt: new Date(),
+              isActive: true,
+              grade: response.user.grade || 12,
+              school: response.user.school || 'Trường THPT',
+              class: response.user.class || '12A1',
+              studentId: response.user.studentId || response.user.id.toString()
+            } as StudentUser;
+          }
 
-          this.currentUserSubject.next(studentUser);
-          localStorage.setItem('currentUser', JSON.stringify(studentUser));
+          this.currentUserSubject.next(user);
+          localStorage.setItem('currentUser', JSON.stringify(user));
 
           return {
             success: true,
-            user: studentUser,
+            user: user,
             token: 'api-jwt-token',
             message: 'Đăng nhập thành công'
           };
@@ -172,59 +156,14 @@ export class AuthService {
     }
   }
 
-  // Student management methods
-  getStoredStudents(): StudentUser[] {
-    const stored = localStorage.getItem('students');
-    if (stored) {
-      try {
-        const students = JSON.parse(stored);
-        return students.map((student: any) => ({
-          ...student,
-          createdAt: new Date(student.createdAt)
-        }));
-      } catch (error) {
-        console.error('Error parsing stored students:', error);
-        return [];
-      }
-    }
-    return [];
-  }
-
-  saveStudent(student: StudentUser): void {
-    const students = this.getStoredStudents();
-    students.push(student);
-    localStorage.setItem('students', JSON.stringify(students));
-  }
-
-  saveStudents(students: StudentUser[]): void {
-    const existingStudents = this.getStoredStudents();
-    const allStudents = [...existingStudents, ...students];
-    localStorage.setItem('students', JSON.stringify(allStudents));
-  }
-
-  updateStudent(updatedStudent: StudentUser): void {
-    const students = this.getStoredStudents();
-    const index = students.findIndex(s => s.id === updatedStudent.id);
-    if (index !== -1) {
-      students[index] = updatedStudent;
-      localStorage.setItem('students', JSON.stringify(students));
-    }
-  }
-
-  deleteStudent(studentId: string): void {
-    const students = this.getStoredStudents();
-    const filteredStudents = students.filter(s => s.id !== studentId);
-    localStorage.setItem('students', JSON.stringify(filteredStudents));
-  }
-
   // Registration methods (for future implementation)
   registerStudent(studentData: any): Observable<AuthResponse> {
-    // TODO: Implement student registration
+    // TODO: Implement student registration via API
     throw new Error('Student registration not implemented yet');
   }
 
   registerTeacher(teacherData: any): Observable<AuthResponse> {
-    // TODO: Implement teacher registration
+    // TODO: Implement teacher registration via API
     throw new Error('Teacher registration not implemented yet');
   }
 }

@@ -18,6 +18,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { AuthService } from '../../services/auth.service';
 import { ExcelService } from '../../services/excel.service';
+import { StudentManagementService } from '../../services/student-management.service';
 import { LayoutComponent } from '../layout/layout.component';
 import { StudentUser } from '../../models/user.model';
 
@@ -74,6 +75,7 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private excelService: ExcelService,
+    private studentManagementService: StudentManagementService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {}
@@ -88,8 +90,8 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
   }
 
   private loadStudents(): void {
-    // Load students from localStorage
-    this.students = this.authService.getStoredStudents();
+    // Load students from StudentManagementService
+    this.students = this.studentManagementService.getStoredStudents();
     this.filteredStudents = [...this.students];
   }
 
@@ -236,7 +238,7 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
 
   deleteStudent(student: StudentUser): void {
     if (confirm(`Bạn có chắc chắn muốn xóa học sinh ${student.name}?`)) {
-      this.authService.deleteStudent(student.id);
+      this.studentManagementService.deleteStudent(student.id);
       this.loadStudents();
       this.snackBar.open(`Đã xóa học sinh ${student.name}`, 'Đóng', {
         duration: 2000
@@ -268,7 +270,7 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
     };
 
     // Save student
-    this.authService.saveStudent(newStudent);
+    this.studentManagementService.saveStudent(newStudent);
     
     // Reload students
     this.loadStudents();
@@ -309,8 +311,7 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
     }
 
     // Check if username already exists
-    const existingStudents = this.authService.getStoredStudents();
-    if (existingStudents.some(s => s.username === this.quickAddForm.username)) {
+    if (this.studentManagementService.isUsernameExists(this.quickAddForm.username)) {
       this.snackBar.open('Tên đăng nhập đã tồn tại', 'Đóng', {
         duration: 3000
       });
@@ -318,7 +319,7 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
     }
 
     // Check if email already exists
-    if (existingStudents.some(s => s.email === this.quickAddForm.email)) {
+    if (this.studentManagementService.isEmailExists(this.quickAddForm.email)) {
       this.snackBar.open('Email đã tồn tại', 'Đóng', {
         duration: 3000
       });
@@ -326,7 +327,7 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
     }
 
     // Check if student ID already exists
-    if (existingStudents.some(s => s.studentId === this.quickAddForm.studentId)) {
+    if (this.studentManagementService.isStudentIdExists(this.quickAddForm.studentId)) {
       this.snackBar.open('Mã học sinh đã tồn tại', 'Đóng', {
         duration: 3000
       });

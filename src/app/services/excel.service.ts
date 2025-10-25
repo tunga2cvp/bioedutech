@@ -3,6 +3,7 @@ import { Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { StudentUser, StudentRegistrationData } from '../models/user.model';
 import { AuthService } from './auth.service';
+import { StudentManagementService } from './student-management.service';
 import { ApiService, ExcelRegistrationResponse } from './api.service';
 import * as XLSX from 'xlsx';
 
@@ -19,6 +20,7 @@ export class ExcelService {
 
   constructor(
     private authService: AuthService,
+    private studentManagementService: StudentManagementService,
     private apiService: ApiService
   ) { }
 
@@ -109,7 +111,7 @@ export class ExcelService {
     const students = this.convertToStudents(data);
     
     // Save students to localStorage
-    this.authService.saveStudents(students);
+    this.studentManagementService.saveStudents(students);
 
     return {
       success: true,
@@ -132,7 +134,7 @@ export class ExcelService {
     const students = this.convertToStudents(mockData);
     
     // Save students to localStorage
-    this.authService.saveStudents(students);
+    this.studentManagementService.saveStudents(students);
 
     return {
       success: true,
