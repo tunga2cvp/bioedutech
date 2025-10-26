@@ -87,6 +87,11 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+
+    .robot-emoji {
+      font-size: 28px;
+      line-height: 1;
+    }
   }
 
   .header-info {
