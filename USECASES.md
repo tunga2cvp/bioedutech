@@ -4,16 +4,12 @@
 - [Tổng quan Use Cases](#tổng-quan-use-cases)
 - [Use Cases cho Học sinh](#use-cases-cho-học-sinh)
 - [Use Cases cho Giáo viên](#use-cases-cho-giáo-viên)
-- [Use Cases cho Quản trị viên](#use-cases-cho-quản-trị-viên)
-- [Use Cases kỹ thuật](#use-cases-kỹ-thuật)
-- [API Use Cases](#api-use-cases)
 
 ## 🎯 Tổng quan Use Cases
 
-BioEduTech được thiết kế để phục vụ 3 nhóm người dùng chính:
+BioEduTech được thiết kế để phục vụ 2 nhóm người dùng chính:
 - **Học sinh THPT** (Lớp 10-12)
 - **Giáo viên Sinh học**
-- **Quản trị viên hệ thống**
 
 ---
 
@@ -34,23 +30,6 @@ BioEduTech được thiết kế để phục vụ 3 nhóm người dùng chính
 7. Chuyển hướng đến Student Dashboard
 
 **Kết quả mong đợi**: Học sinh đăng nhập thành công và truy cập được dashboard
-
-**Code Example**:
-```typescript
-// services/auth.service.ts
-login(credentials: LoginCredentials): AuthResponse {
-  if (credentials.role === 'student') {
-    const existingStudents = this.getStoredStudents();
-    const student = existingStudents.find(s => s.username === credentials.username);
-    
-    if (student && student.password === credentials.password) {
-      this.currentUserSubject.next(student);
-      return { success: true, user: student, token: 'mock-jwt-token' };
-    }
-  }
-  return { success: false, message: 'Tài khoản không tồn tại' };
-}
-```
 
 ### UC-002: Đăng nhập hệ thống
 **Mô tả**: Học sinh đăng nhập vào hệ thống
@@ -172,17 +151,6 @@ login(credentials: LoginCredentials): AuthResponse {
 
 **Kết quả mong đợi**: Tài khoản học sinh được tạo thành công
 
-**Code Example**:
-```typescript
-// services/excel.service.ts
-parseStudentExcel(file: File): Observable<ExcelParseResult> {
-  // Parse Excel file and create student accounts
-  const students = this.convertToStudents(data);
-  this.authService.saveStudents(students);
-  return { success: true, students, errors: [] };
-}
-```
-
 ### UC-008A: Đăng ký hàng loạt học sinh qua API
 **Mô tả**: Giáo viên đăng ký nhiều học sinh cùng lúc thông qua API backend
 
@@ -206,34 +174,6 @@ parseStudentExcel(file: File): Observable<ExcelParseResult> {
 - Tài khoản học sinh được tạo thành công trên backend
 - Dữ liệu được đồng bộ giữa frontend và backend
 - Báo cáo chi tiết về kết quả đăng ký
-
-**Code Example**:
-```typescript
-// services/api.service.ts
-registerStudentsExcel(file: File): Observable<ExcelRegistrationResponse> {
-  const formData = new FormData();
-  formData.append('file', file);
-  return this.http.post<ExcelRegistrationResponse>(`${this.baseUrl}/register_excel`, formData);
-}
-
-// services/excel.service.ts
-registerStudentsFromExcel(file: File): Observable<ExcelRegistrationResponse> {
-  // Validate file type (.xlsx, .xls, .xlsm)
-  const allowedExtensions = ['.xlsx', '.xls', '.xlsm'];
-  const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-  
-  if (!allowedExtensions.includes(fileExtension)) {
-    return of({
-      success: false,
-      created: 0,
-      created_items: []
-    });
-  }
-
-  // Call API directly with file
-  return this.apiService.registerStudentsExcel(file);
-}
-```
 
 ### UC-009: Xem danh sách học sinh
 **Mô tả**: Giáo viên xem và quản lý danh sách học sinh đã tạo
@@ -325,53 +265,6 @@ registerStudentsFromExcel(file: File): Observable<ExcelRegistrationResponse> {
 
 **Kết quả mong đợi**: Bài tập trắc nghiệm được tạo hoàn chỉnh với câu hỏi có ảnh minh họa và phân bổ cho học sinh
 
-**Code Example**:
-```typescript
-// models/exercise.model.ts
-export interface Exercise {
-  id: string;
-  title: string;
-  description: string;
-  grade: number;
-  chapter: string;
-  timeLimit: number; // minutes
-  maxScore: number;
-  questions: Question[];
-  createdAt: Date;
-  publishedAt?: Date;
-  isPublished: boolean;
-}
-
-export interface Question {
-  id: string;
-  content: string;
-  imageUrl?: string;
-  options: AnswerOption[];
-  type: 'single' | 'multiple';
-  explanation?: string;
-}
-
-export interface AnswerOption {
-  id: string;
-  content: string;
-  isCorrect: boolean;
-}
-
-// services/exercise.service.ts
-createExercise(exerciseData: CreateExerciseRequest): Observable<Exercise> {
-  // Parse questions from text format
-  const questions = this.parseQuestions(exerciseData.questionsText);
-  const exercise = { ...exerciseData, questions };
-  return this.saveExercise(exercise);
-}
-
-parseQuestions(questionsText: string): Question[] {
-  // Parse format: "avc? a) aaa b) bbb c) ccc (đúng)"
-  const lines = questionsText.split('\n');
-  // Implementation for parsing question format
-}
-```
-
 ### UC-011: Chấm bài và đánh giá
 **Mô tả**: Giáo viên chấm bài và đánh giá kết quả học sinh
 
@@ -407,233 +300,6 @@ parseQuestions(questionsText: string): Question[] {
 
 ---
 
-## 👨‍💼 Use Cases cho Quản trị viên
-
-### UC-013: Quản lý người dùng
-**Mô tả**: Admin quản lý tất cả tài khoản trong hệ thống
-
-**Luồng thực hiện**:
-1. Đăng nhập Admin Panel
-2. Truy cập "Quản lý người dùng"
-3. Xem danh sách tài khoản:
-   - Học sinh
-   - Giáo viên
-   - Admin
-4. Thực hiện các thao tác:
-   - Duyệt tài khoản giáo viên
-   - Khóa/mở khóa tài khoản
-   - Reset mật khẩu
-   - Xóa tài khoản
-5. Xuất báo cáo người dùng
-
-**Kết quả mong đợi**: Hệ thống được quản lý hiệu quả
-
-### UC-014: Quản lý nội dung hệ thống
-**Mô tả**: Admin quản lý nội dung và cấu hình hệ thống
-
-**Luồng thực hiện**:
-1. Truy cập "Quản lý nội dung"
-2. Quản lý danh mục:
-   - Môn học
-   - Khối lớp
-   - Chương học
-3. Quản lý câu hỏi trắc nghiệm:
-   - Thêm/sửa/xóa câu hỏi
-   - Phân loại theo độ khó
-   - Import từ file Excel
-4. Cấu hình hệ thống:
-   - Thời gian thi
-   - Điểm đậu
-   - Thông báo
-
-**Kết quả mong đợi**: Nội dung hệ thống được cập nhật và tổ chức
-
----
-
-## 🔧 Use Cases kỹ thuật
-
-### UC-015: Backup và restore dữ liệu
-**Mô tả**: Hệ thống tự động backup và có thể restore dữ liệu
-
-**Luồng thực hiện**:
-1. Hệ thống tự động backup hàng ngày
-2. Lưu trữ backup tại nhiều vị trí
-3. Admin có thể restore dữ liệu:
-   - Chọn thời điểm restore
-   - Chọn loại dữ liệu
-   - Xác nhận restore
-4. Hệ thống thông báo kết quả
-
-**Kết quả mong đợi**: Dữ liệu được bảo vệ an toàn
-
-### UC-016: Monitoring và logging
-**Mô tả**: Hệ thống theo dõi hoạt động và ghi log
-
-**Luồng thực hiện**:
-1. Hệ thống ghi log tất cả hoạt động:
-   - Đăng nhập/đăng xuất
-   - Thao tác với dữ liệu
-   - Lỗi hệ thống
-2. Admin xem dashboard monitoring:
-   - Số lượng người dùng online
-   - Hiệu suất hệ thống
-   - Lỗi và cảnh báo
-3. Cấu hình cảnh báo tự động
-
-**Kết quả mong đợi**: Hệ thống hoạt động ổn định
-
----
-
-## 🌐 API Use Cases
-
-### UC-017: RESTful API Integration
-**Mô tả**: Tích hợp với Backend API qua Swagger documentation
-
-**API Base URL**: `https://chimeara.pythonanywhere.com`
-**Swagger UI**: [https://chimeara.pythonanywhere.com/apidocs/](https://chimeara.pythonanywhere.com/apidocs/)
-
-**Endpoints chính**:
-```typescript
-// Authentication
-POST /api/auth/login
-POST /api/auth/register
-POST /api/auth/refresh-token
-
-// Student APIs
-GET /api/students/profile
-GET /api/students/exercises
-GET /api/students/exercises/{id}
-POST /api/students/exercises/{id}/submit
-GET /api/students/progress
-
-// Teacher APIs
-GET /api/teachers/profile
-GET /api/teachers/students
-POST /api/teachers/students
-POST /api/teachers/students/bulk
-GET /api/teachers/exercises
-POST /api/teachers/exercises
-GET /api/teachers/exercises/{id}/submissions
-
-// Content APIs
-GET /api/materials/{chapterId}
-GET /api/quizzes/{quizId}
-POST /api/quizzes/submit
-```
-
-**Luồng thực hiện**:
-1. Frontend gọi API authentication để đăng nhập
-2. Nhận JWT token và lưu vào localStorage
-3. Sử dụng token cho tất cả API calls tiếp theo
-4. Implement error handling và retry logic
-5. Cache dữ liệu để tối ưu performance
-
-**Code Example**:
-```typescript
-// services/api.service.ts
-@Injectable({
-  providedIn: 'root'
-})
-export class ApiService {
-  private baseUrl = 'https://chimeara.pythonanywhere.com';
-  private token = localStorage.getItem('auth_token');
-
-  login(credentials: LoginCredentials): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/api/auth/login`, credentials);
-  }
-
-  getStudentProfile(): Observable<Student> {
-    return this.http.get<Student>(`${this.baseUrl}/api/students/profile`, {
-      headers: this.getHeaders()
-    });
-  }
-}
-```
-
-### UC-018: JWT Authentication Flow
-**Mô tả**: Xác thực người dùng qua JWT token với Backend API
-
-**Luồng thực hiện**:
-1. Người dùng nhập thông tin đăng nhập
-2. Frontend gửi POST request đến `/api/auth/login`
-3. Backend xác thực và trả về JWT token
-4. Frontend lưu token vào localStorage
-5. Tất cả API calls tiếp theo đều kèm token trong header
-6. Token có thời hạn và cần refresh khi hết hạn
-
-**Code Example**:
-```typescript
-// services/auth.service.ts
-login(credentials: LoginCredentials): Observable<AuthResponse> {
-  return this.apiService.login(credentials).pipe(
-    tap(response => {
-      if (response.success) {
-        localStorage.setItem('auth_token', response.token);
-        this.currentUserSubject.next(response.user);
-      }
-    }),
-    catchError(error => {
-      console.error('Login failed:', error);
-      return throwError(error);
-    })
-  );
-}
-
-logout(): void {
-  localStorage.removeItem('auth_token');
-  this.currentUserSubject.next(null);
-  this.router.navigate(['/login']);
-}
-```
-
-**Kết quả mong đợi**: Người dùng được xác thực an toàn và có quyền truy cập phù hợp
-
-### UC-019: API Error Handling
-**Mô tả**: Xử lý lỗi từ Backend API một cách graceful
-
-**Luồng thực hiện**:
-1. Implement HTTP Interceptor để catch tất cả API errors
-2. Phân loại lỗi theo status code (400, 401, 403, 404, 500)
-3. Hiển thị thông báo lỗi phù hợp cho người dùng
-4. Log lỗi để debug và monitoring
-5. Retry logic cho network errors
-6. Fallback UI khi API không khả dụng
-
-**Code Example**:
-```typescript
-// interceptors/error.interceptor.ts
-@Injectable()
-export class ErrorInterceptor implements HttpInterceptor {
-  constructor(private errorHandler: ErrorHandlerService) {}
-
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(req).pipe(
-      catchError((error: HttpErrorResponse) => {
-        this.errorHandler.handleError(error);
-        return throwError(() => error);
-      })
-    );
-  }
-}
-```
-
-**Kết quả mong đợi**: Ứng dụng hoạt động ổn định ngay cả khi có lỗi API
-
-### UC-020: Real-time notifications
-**Mô tả**: Gửi thông báo real-time cho người dùng
-
-**Luồng thực hiện**:
-1. Sử dụng WebSocket hoặc Server-Sent Events
-2. Gửi thông báo khi:
-   - Có bài tập mới
-   - Có kết quả chấm bài
-   - Có thông báo từ giáo viên
-3. Người dùng nhận thông báo ngay lập tức
-
-**Kết quả mong đợi**: Người dùng được thông báo kịp thời
-
----
-
 ## 📊 Metrics và KPIs
 
 ### Học sinh
@@ -660,21 +326,6 @@ export class ErrorInterceptor implements HttpInterceptor {
 ---
 
 ## 🔄 Workflow Integration
-
-### Integration với hệ thống khác
-- **Backend API**: Tích hợp với [https://chimeara.pythonanywhere.com](https://chimeara.pythonanywhere.com)
-- **Swagger Documentation**: [https://chimeara.pythonanywhere.com/apidocs/](https://chimeara.pythonanywhere.com/apidocs/)
-- **LMS hiện có**: Import/export dữ liệu
-- **Google Classroom**: Đồng bộ lớp học
-- **Microsoft Teams**: Tích hợp video call
-- **Email system**: Gửi thông báo tự động
-
-### Mobile App Integration
-- **React Native**: Ứng dụng mobile
-- **Push notifications**: Thông báo đẩy
-- **Offline mode**: Học offline
-- **Sync**: Đồng bộ dữ liệu
-- **API Integration**: Sử dụng cùng Backend API
 
 ---
 

@@ -20,7 +20,7 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   private destroy$ = new Subject<void>();
   private shouldScroll = false;
   private previousIsOpen = false;
-  private readonly STORAGE_KEY = 'bioedutech_chat_history';
+  private readonly STORAGE_KEY = 'bioedutech_chat_history_new';
   private readonly MAX_MESSAGES = 10; // Welcome message + 9 messages (5 Q&A pairs = 10 messages)
 
   constructor(private chatbotService: ChatbotService) {}
@@ -31,50 +31,54 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private loadChatHistory(): void {
-    try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
-      if (stored) {
-        const savedMessages = JSON.parse(stored);
-        // Convert timestamp strings back to Date objects
-        this.messages = savedMessages.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }));
-      } else {
+    // TEMPORARILY DISABLED: Không load lịch sử từ localStorage
+    // try {
+    //   const stored = localStorage.getItem(this.STORAGE_KEY);
+    //   if (stored) {
+    //     const savedMessages = JSON.parse(stored);
+    //     // Convert timestamp strings back to Date objects
+    //     this.messages = savedMessages.map((msg: any) => ({
+    //       ...msg,
+    //       timestamp: new Date(msg.timestamp)
+    //     }));
+    //   } else {
         // Thêm tin nhắn chào mừng nếu chưa có lịch sử
         this.messages.push({
           role: 'assistant',
-          content: 'Chào bạn! Tôi là giáo viên Sinh học. Tôi có thể giúp bạn giải thích các khái niệm sinh học, làm bài tập, hoặc trả lời các câu hỏi liên quan đến sinh học. Bạn muốn hỏi gì nào?',
+          content: 'Chào bạn, Tôi là trợ lý Sinh học của cô Thảo, tôi có thể giúp bạn giải thích các khái niệm sinh học, gợi ý làm bài tập, hoặc trả lời các câu hỏi liên quan đến sinh học. Bạn muốn hỏi gì nào?',
           timestamp: new Date()
         });
-        this.saveChatHistory();
-      }
-    } catch (error) {
-      console.error('Error loading chat history:', error);
-      // Fallback nếu có lỗi
-      this.messages.push({
-        role: 'assistant',
-        content: 'Chào bạn! Tôi là giáo viên Sinh học. Tôi có thể giúp bạn giải thích các khái niệm sinh học, làm bài tập, hoặc trả lời các câu hỏi liên quan đến sinh học. Bạn muốn hỏi gì nào?',
-        timestamp: new Date()
-      });
-    }
+    //     this.saveChatHistory();
+    //   }
+    // } catch (error) {
+    //   console.error('Error loading chat history:', error);
+    //   // Fallback nếu có lỗi
+    //   this.messages.push({
+    //     role: 'assistant',
+    //     content: 'Chào bạn, Tôi là trợ lý Sinh học của cô Thảo, tôi có thể giúp bạn giải thích các khái niệm sinh học, gợi ý làm bài tập, hoặc trả lời các câu hỏi liên quan đến sinh học. Bạn muốn hỏi gì nào?',
+    //     timestamp: new Date()
+    //   });
+    // }
     this.shouldScroll = true;
   }
 
   private saveChatHistory(): void {
-    try {
-      // Trim messages nếu vượt quá MAX_MESSAGES
-      if (this.messages.length > this.MAX_MESSAGES) {
-        const welcomeMessage = this.messages[0]; // Giữ tin nhắn chào mừng
-        // Lấy MAX_MESSAGES - 1 tin nhắn cuối cùng
-        const recentMessages = this.messages.slice(-(this.MAX_MESSAGES - 1));
-        this.messages = [welcomeMessage, ...recentMessages];
-      }
+    // TEMPORARILY DISABLED: Không lưu lịch sử vào localStorage
+    return;
+    
+    // try {
+    //   // Trim messages nếu vượt quá MAX_MESSAGES
+    //   if (this.messages.length > this.MAX_MESSAGES) {
+    //     const welcomeMessage = this.messages[0]; // Giữ tin nhắn chào mừng
+    //     // Lấy MAX_MESSAGES - 1 tin nhắn cuối cùng
+    //     const recentMessages = this.messages.slice(-(this.MAX_MESSAGES - 1));
+    //     this.messages = [welcomeMessage, ...recentMessages];
+    //   }
       
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.messages));
-    } catch (error) {
-      console.error('Error saving chat history:', error);
-    }
+    //   localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.messages));
+    // } catch (error) {
+    //   console.error('Error saving chat history:', error);
+    // }
   }
 
   ngAfterViewChecked(): void {
