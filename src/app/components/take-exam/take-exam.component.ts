@@ -5,6 +5,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, TestDetailResponse, ExamSubmissionRequest, ExamSubmissionResponse } from '../../services/api.service';
 import { TimerService, TimerConfig } from '../../services/timer.service';
+import { AuthService } from '../../services/auth.service';
 
 interface ExamAnswer {
   questionId: number;
@@ -48,7 +49,8 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     private router: Router,
     private apiService: ApiService,
     private timerService: TimerService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -265,9 +267,13 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     const timeTaken = this.examStartTime ? 
       Math.floor((new Date().getTime() - this.examStartTime.getTime()) / 1000) : 0;
     
+    // Get student ID from auth service
+    const currentStudent = this.authService.getCurrentStudent();
+    const studentId = currentStudent ? (typeof currentStudent.id === 'number' ? currentStudent.id : parseInt(currentStudent.id)) : 1; // Fallback to 1 if not found
+    
     // Prepare submission data according to API spec
     const submissionData: ExamSubmissionRequest = {
-      student_id: 1, // TODO: Get actual student ID from auth service
+      student_id: studentId,
       answers: this.answers.map(answer => answer.selectedAnswers),
       time_taken: timeTaken
     };

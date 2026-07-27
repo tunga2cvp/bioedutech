@@ -593,4 +593,44 @@ export class ApiService {
       })
     );
   }
+
+  // Delete user API call - DELETE /users/{user_id}
+  deleteUser(userId: number): Observable<{ success: boolean; message: string }> {
+    console.log('🗑️ Deleting user from API:', {
+      userId,
+      url: `${this.baseUrl}/users/${userId}`
+    });
+
+    return this.http.delete<{ success: boolean; message: string }>(`${this.baseUrl}/users/${userId}`, {
+      headers: this.getHeaders()
+    }).pipe(
+      tap((response) => {
+        console.log('✅ User deleted successfully:', response);
+      }),
+      catchError(error => {
+        console.error('❌ Error deleting user:', error);
+        return this.handleError(error);
+      })
+    );
+  }
+
+  // Delete exam API call - DELETE /exams/{exam_id}
+  deleteExam(examId: string | number): Observable<{ success: boolean; message: string }> {
+    console.log('🗑️ Deleting exam from API:', {
+      examId,
+      url: `${this.baseUrl}/exams/${examId}`
+    });
+
+    return this.http.delete<{ success: boolean; message: string }>(`${this.baseUrl}/exams/${examId}`, {
+      headers: this.getHeaders()
+    }).pipe(
+      tap((response) => {
+        console.log('✅ Exam deleted successfully:', response);
+      }),
+      catchError(error => {
+        console.error('❌ Error deleting exam:', error);
+        return this.handleError(error);
+      })
+    );
+  }
 }

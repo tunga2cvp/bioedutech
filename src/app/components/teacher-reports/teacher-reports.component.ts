@@ -155,12 +155,37 @@ export class TeacherReportsComponent implements OnInit, OnDestroy {
       const results = await this.apiService.getExamResults(exercise.id).toPromise();
       
       if (results && results.success && results.results.length > 0) {
-        const totalSubmissions = results.results.length;
-        const averagePercentage = results.results.reduce((sum, result) => sum + result.percentage, 0) / totalSubmissions;
-        const averageTimeTaken = results.results.reduce((sum, result) => sum + result.time_taken, 0) / totalSubmissions;
+        // Filter out results where student is null (deleted students)
+        const validResults = results.results.filter(result => result.student !== null);
+        
+        if (validResults.length === 0) {
+          // No valid results after filtering
+          const updatedReport: ExamReportData = {
+            exam: {
+              id: exercise.id,
+              exam_name: exercise.title,
+              created_at: exercise.createdAt || new Date().toISOString(),
+              status: 'active',
+              question_count: exercise.questions?.length || 0,
+              max_score: exercise.maxScore || 100,
+              description: exercise.description
+            },
+            totalSubmissions: 0,
+            averageScore: 0,
+            averageTimeTaken: 0,
+            isLoading: false
+          };
+          this.updateExamReport(exercise.id, updatedReport);
+          console.log(`📊 No valid submissions for exam ${exercise.id}: ${exercise.title} (all students deleted)`);
+          return;
+        }
+        
+        const totalSubmissions = validResults.length;
+        const averagePercentage = validResults.reduce((sum, result) => sum + result.percentage, 0) / totalSubmissions;
+        const averageTimeTaken = validResults.reduce((sum, result) => sum + result.time_taken, 0) / totalSubmissions;
         
         // Get last submission timestamp
-        const lastSubmission = results.results
+        const lastSubmission = validResults
           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0]
           .timestamp;
 
@@ -252,8 +277,15 @@ export class TeacherReportsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response: ExamResultsResponse) => {
           if (response.success) {
-            this.selectedExamResults = response.results;
+            // Filter out results where student is null (deleted students)
+            this.selectedExamResults = response.results.filter(result => result.student !== null);
             console.log('📊 Loaded exam details:', response);
+            console.log('📊 Filtered results (excluding deleted students):', this.selectedExamResults);
+            
+            if (response.results.length !== this.selectedExamResults.length) {
+              const removedCount = response.results.length - this.selectedExamResults.length;
+              console.log(`⚠️ Removed ${removedCount} results from deleted students`);
+            }
           } else {
             this.snackBar.open('Không thể tải chi tiết bài thi', 'Đóng', {
               duration: 3000

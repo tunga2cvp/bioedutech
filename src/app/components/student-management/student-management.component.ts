@@ -255,10 +255,45 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
   deleteStudent(student: User): void {
     const studentName = student.name || student.username || 'học sinh';
     if (confirm(`Bạn có chắc chắn muốn xóa học sinh ${studentName}?`)) {
-      // TODO: Implement delete API call
-      this.snackBar.open(`Chức năng xóa học sinh sẽ được cập nhật`, 'Đóng', {
-        duration: 2000
-      });
+      this.isLoading = true;
+      
+      this.apiService.deleteUser(student.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            if (response.success) {
+              // Remove the student from the local lists
+              this.students = this.students.filter(s => s.id !== student.id);
+              this.filteredStudents = this.filteredStudents.filter(s => s.id !== student.id);
+              
+              this.snackBar.open(`Đã xóa học sinh ${studentName} thành công`, 'Đóng', {
+                duration: 3000
+              });
+            } else {
+              this.snackBar.open('Không thể xóa học sinh. Vui lòng thử lại', 'Đóng', {
+                duration: 3000
+              });
+            }
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('❌ Error deleting student:', error);
+            let errorMessage = 'Lỗi khi xóa học sinh';
+            
+            if (error.error?.statusCode === 404) {
+              errorMessage = 'Không tìm thấy học sinh';
+            } else if (error.error?.statusCode === 500) {
+              errorMessage = 'Lỗi máy chủ khi xóa học sinh';
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+            
+            this.snackBar.open(errorMessage, 'Đóng', {
+              duration: 3000
+            });
+            this.isLoading = false;
+          }
+        });
     }
   }
 

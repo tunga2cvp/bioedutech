@@ -180,6 +180,50 @@ export class ExerciseListComponent implements OnInit {
     );
   }
 
+  deleteExercise(exercise: Exercise): void {
+    console.log('=== DELETE EXERCISE CLICKED ===');
+    console.log('Exercise to delete:', exercise);
+    
+    if (!exercise) {
+      console.error('Exercise object is missing');
+      alert('Không thể xóa bài tập này. Vui lòng thử lại.');
+      return;
+    }
+    
+    if (!exercise.id) {
+      console.error('Exercise ID is missing:', exercise);
+      alert('Bài tập này chưa có ID. Vui lòng tạo lại bài tập.');
+      return;
+    }
+    
+    // Confirm with user before deleting
+    const confirmed = confirm(`Bạn có chắc chắn muốn xóa bài thi "${exercise.title}"? Hành động này không thể hoàn tác.`);
+    
+    if (!confirmed) {
+      console.log('❌ Delete cancelled by user');
+      return;
+    }
+    
+    console.log('🗑️ Starting delete process for exercise:', exercise.id);
+    console.log('Exercise title:', exercise.title);
+    
+    // Call API to delete from server
+    this.exerciseService.deleteExercise(exercise.id).subscribe({
+      next: (success) => {
+        console.log('✅ Exercise deleted successfully from server');
+        
+        // Refresh the list from server
+        this.loadExercises();
+        
+        alert(`Bài thi "${exercise.title}" đã được xóa thành công.`);
+      },
+      error: (error) => {
+        console.error('❌ Error deleting exercise:', error);
+        alert('Có lỗi xảy ra khi xóa bài thi. Vui lòng thử lại sau.');
+      }
+    });
+  }
+
 
 
 

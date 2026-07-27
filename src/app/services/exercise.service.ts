@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { tap, catchError, map } from 'rxjs/operators';
 import { Exercise, Question, CreateExerciseRequest, QuestionParseResult, ImageUploadResult, ExerciseListFilter, ExerciseStats } from '../models/exercise.model';
 import { ApiService, TestCreationRequest, TestCreationResponse, TestListResponse, TestListItem, TestDetailResponse, TestDetailQuestion } from './api.service';
 
@@ -250,8 +251,8 @@ export class ExerciseService {
     return of(exercises[index]);
   }
 
-  // Xóa bài tập
-  deleteExercise(id: string): Observable<boolean> {
+  // Xóa bài tập (local only)
+  deleteExerciseLocal(id: string): Observable<boolean> {
     const exercises = this.exercisesSubject.value;
     const filteredExercises = exercises.filter(ex => ex.id !== id);
     
@@ -263,6 +264,26 @@ export class ExerciseService {
     this.saveExercisesToStorage(filteredExercises);
 
     return of(true);
+  }
+
+  // Xóa bài tập từ server
+  // Note: Không cập nhật local state ở đây, component sẽ refresh toàn bộ list từ server
+  deleteExercise(examId: string): Observable<boolean> {
+    console.log('🗑️ Deleting exercise from server:', examId);
+    
+    // Call API to delete from server
+    return this.apiService.deleteExam(examId).pipe(
+      map((response) => {
+        console.log('✅ Exercise deleted from server:', response);
+        
+        // Return boolean for compatibility
+        return response.success;
+      }),
+      catchError((error) => {
+        console.error('❌ Error deleting exercise:', error);
+        throw error;
+      })
+    );
   }
 
   // Xuất bản bài tập

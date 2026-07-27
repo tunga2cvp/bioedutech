@@ -405,6 +405,27 @@
       color: #666;
     }
   }
+  
+  .action-btn {
+    color: #666;
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+  }
+  
+  // Delete action styling
+  ::ng-deep .delete-action {
+    color: #f44336 !important;
+    
+    &:hover {
+      background: rgba(244, 67, 54, 0.08) !important;
+    }
+    
+    mat-icon {
+      color: #f44336 !important;
+    }
+  }
 }
 
 // Responsive Design

@@ -14,11 +14,16 @@
   </div>
 
   <div class="exercise-footer">
-    <button type="button" class="btn btn-secondary" (click)="onViewReport($event)">
-      📊 Báo cáo
-    </button>
     <button type="button" class="btn btn-primary" (click)="onViewExercise($event)">
       📖 Xem bài thi
+    </button>
+    <button 
+      type="button" 
+      class="btn btn-danger" 
+      (click)="onDeleteExercise($event)"
+      title="Xóa bài thi"
+    >
+      🗑️ Xóa
     </button>
   </div>
 </div>

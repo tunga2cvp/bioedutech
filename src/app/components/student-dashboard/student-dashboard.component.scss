@@ -345,6 +345,15 @@
       
       .detail-icon {
         font-size: 18px;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        flex-shrink: 0;
+      }
+      
+      span {
+        flex: 1;
+        line-height: 1.2;
       }
     }
   }
