@@ -1,235 +1,157 @@
-# 🚀 BioEduTech - Quick Start Guide
+# Quick Start Guide
 
-## Tổng quan 30 giây
+Hướng dẫn chạy nhanh BioEduTech trong môi trường local.
 
-**BioEduTech** = Hệ thống học tập Sinh học THPT (Angular + AI Chatbot + Backend API)
-
-**Stack**: Angular 17 → Hostinger VPS → Domain bioedutech.com
-
----
-
-## 📋 Bắt đầu trong 5 phút
-
-### 1️⃣ Clone & Setup (2 phút)
-```bash
-# Clone repository
-git clone <repo-url>
-cd bioedutech
-
-# Install dependencies
-npm install
-
-# Start development server
-ng serve
-# → Open http://localhost:4200
-```
-
-### 2️⃣ Test Login (1 phút)
-```
-Teacher: giaovien / 123456
-Student: [any student account]
-```
-
-### 3️⃣ Key URLs (1 phút)
-```
-http://localhost:4200                → Landing page
-http://localhost:4200/login          → Login
-http://localhost:4200/teacher        → Teacher dashboard
-http://localhost:4200/student        → Student dashboard
-```
-
----
-
-## 🎯 Development Workflow
-
-### Cách làm việc với Cursor AI
-
-#### 1. Tạo Component mới
-```
-Prompt: "Tạo StudentProfileComponent standalone với:
-- User info display
-- Edit profile form
-- Avatar upload
-- Integration với AuthService
-```
-
-#### 2. Fix Bug
-```
-Prompt: "Fix lỗi sau [paste error message]:
-File: [file path]
-Context: [describe issue]
-```
-
-#### 3. Add Feature
-```
-Prompt: "Thêm feature export kết quả thi ra Excel:
-- Use xlsx library
-- Add button trong Teacher Reports
-- Generate file download
-```
-
-### Development Cheat Sheet
+## 1. Cài Dependencies
 
 ```bash
-# Development
-ng serve              # Start dev server
-ng build             # Build
-ng test              # Run tests
-ng lint              # Check code quality
-
-# Git
-git checkout -b feature/new-feature
-git commit -m "feat: add feature"
-git push origin feature/new-feature
-
-# Build Production
-ng build --configuration production
-# Output: dist/bioedutech/browser/
-```
-
----
-
-## 🚀 Deploy Checklist
-
-### Pre-Deploy
-- [ ] Build successful (`ng build --configuration production`)
-- [ ] No console errors
-- [ ] All tests pass
-- [ ] Environment variables set
-
-### Deploy Steps
-1. Build: `ng build --configuration production`
-2. Upload: `scp -r dist/bioedutech/browser/* user@server:/var/www/html/`
-3. Configure Nginx: Point to `/var/www/html`
-4. SSL: Setup Let's Encrypt
-5. Domain: Point DNS to server IP
-
-### Post-Deploy
-- [ ] HTTPS working
-- [ ] API calls working
-- [ ] All pages accessible
-- [ ] Mobile responsive
-
----
-
-## 🔧 Troubleshooting
-
-### Port 4200 busy
-```bash
-ng serve --port 4201
-```
-
-### Module not found
-```bash
-rm -rf node_modules package-lock.json
 npm install
 ```
 
-### Build errors
+## 2. Chạy Dev Server
+
 ```bash
-ng build --configuration production --verbose
+npm start
 ```
 
-### API errors
-- Check: `https://chimeara.pythonanywhere.com/apidocs/`
-- Test: `curl https://chimeara.pythonanywhere.com/health`
+Mở:
 
----
-
-## 📚 Important Files
-
-### Code
-```
-src/app/
-├── components/       # UI components
-├── services/        # Business logic
-├── models/          # TypeScript interfaces
-└── config/          # Configuration
+```text
+http://localhost:4200
 ```
 
-### Docs
-```
-├── DEVELOPMENT_PROCESS_GUIDE.md   # Full guide
-├── USECASES.md                    # Requirements
-├── README.md                      # Overview
-└── QUICK_START_GUIDE.md          # This file
+## 3. Build
+
+```bash
+npm run build
 ```
 
----
+Build output:
 
-## 🎓 Learning Path
-
-### Week 1: Setup & Basics
-- [ ] Setup development environment
-- [ ] Run locally
-- [ ] Understand project structure
-- [ ] Read `USECASES.md`
-
-### Week 2: Core Features
-- [ ] Implement Login
-- [ ] Teacher Dashboard
-- [ ] Student Dashboard
-- [ ] CRUD operations
-
-### Week 3: Advanced Features
-- [ ] Timer functionality
-- [ ] AI Chatbot
-- [ ] Reports
-- [ ] Image upload
-
-### Week 4: Testing & Deploy
-- [ ] Write tests
-- [ ] Fix bugs
-- [ ] Deploy to Hostinger
-- [ ] Production monitoring
-
----
-
-## 💡 Tips
-
-### Use Cursor AI Effectively
-✅ Be specific in prompts
-✅ Iterate and refine
-✅ Review generated code
-✅ Test before deploying
-
-### Best Practices
-✅ Follow Angular style guide
-✅ Write tests for new features
-✅ Document complex logic
-✅ Use TypeScript strictly
-✅ Handle errors properly
-
-### Common Patterns
-```typescript
-// Service injection
-constructor(private apiService: ApiService) {}
-
-// Observable handling
-this.apiService.getData().subscribe({
-  next: data => this.data = data,
-  error: err => console.error(err)
-});
-
-// Form validation
-this.form = this.fb.group({
-  name: ['', [Validators.required]],
-  email: ['', [Validators.email]]
-});
+```text
+dist/bioedutech
 ```
 
----
+Ghi nhận hiện tại: build thành công, có warning initial bundle vượt budget.
 
-## 🆘 Get Help
+## 4. Luồng Test Nhanh
 
-1. **Check docs**: `DEVELOPMENT_PROCESS_GUIDE.md`
-2. **Check code**: Search in codebase
-3. **Ask Cursor AI**: Use AI assistant
-4. **Check API**: https://chimeara.pythonanywhere.com/apidocs/
+### Đăng nhập
 
----
+1. Vào `/login`.
+2. Nhập username/password theo dữ liệu backend.
+3. Backend trả role:
+   - `teacher` chuyển đến `/teacher`.
+   - `student` chuyển đến `/student`.
 
-**Version**: 1.0  
-**Quick reference for BioEduTech development**
+### Giáo viên tạo bài thi
 
+1. Vào `/create-exercise`.
+2. Nhập tên bài thi.
+3. Nhập timer nếu cần, ví dụ `30m`, `1h`, `1h30m`.
+4. Thêm câu hỏi thủ công hoặc paste text rồi parse.
+5. Chọn đáp án đúng.
+6. Upload ảnh nếu có.
+7. Bấm lưu để gửi `POST /exams`.
 
+Format parse câu hỏi:
+
+```text
+Câu hỏi ví dụ?
+a) Đáp án A
+b) Đáp án B (đúng)
+c) Đáp án C
+d) Đáp án D
+```
+
+### Giáo viên quản lý bài thi
+
+1. Vào `/exercise-list`.
+2. Tìm theo tên bài thi.
+3. Xem chi tiết bài thi qua `/view-exercise/:id`.
+4. Xóa bài thi nếu cần.
+
+### Học sinh làm bài
+
+1. Vào `/student`.
+2. Chọn bài thi đang mở.
+3. Làm bài tại `/student/exam/:id`.
+4. Nộp bài hoặc chờ timer tự nộp.
+5. Xem kết quả tại `/student/exam-result/:id`.
+
+### Quản lý học sinh
+
+1. Vào `/teacher/students`.
+2. Tải template Excel nếu cần.
+3. Upload Excel/CSV.
+4. Danh sách học sinh được load từ API `/users?role=student`.
+
+### Báo cáo
+
+1. Vào `/reports`.
+2. App load danh sách bài thi.
+3. Với từng bài, app gọi `/exams/{id}/results`.
+4. Bấm xem chi tiết để xem submission theo học sinh.
+
+## 5. API Backend
+
+Base URL hiện tại:
+
+```text
+https://chimeara.pythonanywhere.com
+```
+
+Swagger nếu backend còn bật:
+
+```text
+https://chimeara.pythonanywhere.com/apidocs/
+```
+
+## 6. AI Config
+
+Frontend đang dùng flow cũ: gọi trực tiếp OpenAI từ Angular và đọc key từ `src/app/config/ai-config.ts`.
+
+Tạo/cập nhật file local:
+
+```ts
+export const AI_CONFIG = {
+  MODEL: 'gpt-4o-mini',
+  MAX_TOKENS: 1000,
+  TEMPERATURE: 0.7,
+  OPENAI_API_KEY: 'YOUR_REAL_OPENAI_API_KEY',
+  OPENAI_API_URL: 'https://api.openai.com/v1/chat/completions'
+};
+```
+
+Sau đó chạy:
+
+```bash
+npm start
+```
+
+Không commit API key thật vào repo public. Chỉ đặt key trong `src/app/config/ai-config.ts` vì file này đang nằm trong `.gitignore`.
+
+## 7. Lỗi Thường Gặp
+
+### Không load được bài thi/học sinh
+
+- Kiểm tra backend còn hoạt động.
+- Kiểm tra CORS/network trong browser devtools.
+- Kiểm tra `baseUrl` trong `ApiService`.
+
+### Timer không chạy
+
+- Kiểm tra response exam có `timer` hoặc `time_limit`.
+- `TimerService.parseTimerString()` hiện hỗ trợ `30m`, `1h`, `45s`, `1h30m`, `2h15m30s`.
+
+### Không vào được dashboard giáo viên
+
+- `TeacherDashboardComponent` yêu cầu `AuthService.getCurrentTeacher()` có user role `teacher`.
+- Đăng nhập lại qua `/login`.
+
+## 8. File Nên Đọc Tiếp
+
+- `README.md`
+- `PROJECT_STRUCTURE.md`
+- `API_INTEGRATION_GUIDE.md`
+- `DOCUMENTATION_INDEX.md`

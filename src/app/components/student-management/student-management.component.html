@@ -135,7 +135,7 @@
 
           <!-- Student Table -->
           <div class="table-container" *ngIf="!isLoading && filteredStudents.length > 0">
-            <table mat-table [dataSource]="filteredStudents" class="student-table">
+            <table mat-table [dataSource]="paginatedStudents" class="student-table">
               <!-- Name Column -->
               <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef>Họ tên</th>
@@ -183,12 +183,77 @@
               <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
           </div>
+
+          <div class="pagination" *ngIf="!isLoading && filteredStudents.length > 0">
+            <div class="pagination-summary">
+              Hiển thị {{ firstVisibleStudent }}-{{ lastVisibleStudent }}
+              trong {{ filteredStudents.length }} học sinh
+            </div>
+
+            <div class="pagination-controls">
+              <label class="page-size-control">
+                <span>Số dòng</span>
+                <select
+                  [(ngModel)]="itemsPerPage"
+                  (change)="onPageSizeChange()"
+                  aria-label="Số học sinh trên mỗi trang">
+                  <option *ngFor="let size of pageSizeOptions" [ngValue]="size">
+                    {{ size }}
+                  </option>
+                </select>
+              </label>
+
+              <span class="page-status">
+                Trang {{ currentPage }} / {{ totalPages }}
+              </span>
+
+              <div class="page-actions">
+                <button
+                  mat-icon-button
+                  type="button"
+                  title="Trang đầu"
+                  aria-label="Đi tới trang đầu"
+                  [disabled]="currentPage === 1"
+                  (click)="onPageChange(1)">
+                  <mat-icon>first_page</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
+                  title="Trang trước"
+                  aria-label="Đi tới trang trước"
+                  [disabled]="currentPage === 1"
+                  (click)="onPageChange(currentPage - 1)">
+                  <mat-icon>chevron_left</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
+                  title="Trang sau"
+                  aria-label="Đi tới trang sau"
+                  [disabled]="currentPage === totalPages"
+                  (click)="onPageChange(currentPage + 1)">
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
+                  title="Trang cuối"
+                  aria-label="Đi tới trang cuối"
+                  [disabled]="currentPage === totalPages"
+                  (click)="onPageChange(totalPages)">
+                  <mat-icon>last_page</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
           
           <!-- Empty State -->
           <div class="empty-state" *ngIf="!isLoading && filteredStudents.length === 0">
             <mat-icon>school</mat-icon>
-            <h3>Chưa có học sinh nào</h3>
-            <p>Hãy thêm học sinh bằng cách upload file Excel hoặc tạo trực tiếp</p>
+            <h3>{{ searchTerm ? 'Không tìm thấy học sinh' : 'Chưa có học sinh nào' }}</h3>
+            <p *ngIf="searchTerm">Không có học sinh nào khớp với "{{ searchTerm }}"</p>
+            <p *ngIf="!searchTerm">Hãy thêm học sinh bằng cách upload file Excel</p>
           </div>
         </mat-card-content>
       </mat-card>

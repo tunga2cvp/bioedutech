@@ -1,193 +1,162 @@
-# BioEduTech - Hệ thống quản lý bài tập trắc nghiệm
+# BioEduTech
 
-## Tổng quan
+BioEduTech là ứng dụng web Angular 17 phục vụ quản lý bài thi trắc nghiệm Sinh học. Ứng dụng có hai nhóm người dùng chính: giáo viên tạo/quản lý bài thi và học sinh làm bài, xem kết quả.
 
-BioEduTech là một ứng dụng web Angular được thiết kế để quản lý và thực hiện các bài tập trắc nghiệm cho giáo viên và học sinh. Ứng dụng cung cấp giao diện đơn giản và trực quan để tạo, quản lý và xem các bài tập trắc nghiệm.
+## Trạng thái hiện tại
+
+- Framework: Angular 17, standalone components, TypeScript, SCSS.
+- UI: kết hợp Angular Material và SCSS custom.
+- Backend API: `https://chimeara.pythonanywhere.com`.
+- Build hiện tại chạy được với `npm run build`. Bundle production đang có warning vượt initial budget, nhưng không làm fail build.
+- Auth, exam, user, image upload, Excel import, reports, timer và AI/chatbot đều đang gọi trực tiếp từ frontend service.
 
 ## Tính năng chính
 
-### 🎯 Quản lý bài tập (Giáo viên)
-- **Xem danh sách bài tập**: Hiển thị tất cả bài tập đã tạo với thông tin cơ bản
-- **Tạo bài tập mới**: Tạo bài tập trắc nghiệm với nhiều câu hỏi
-- **Xem chi tiết bài tập**: Xem toàn bộ nội dung bài tập bao gồm câu hỏi và đáp án đúng
-- **Tìm kiếm bài tập**: Tìm kiếm bài tập theo tên
-
-### 📊 Thống kê
-- Tổng số bài tập
-- Số bài tập đã xuất bản
-- Tổng số câu hỏi
-- Số câu hỏi trung bình mỗi bài tập
-
-### 🖼️ Quản lý hình ảnh
-- Upload hình ảnh cho câu hỏi
-- Hiển thị hình ảnh thông qua API GET `/images/{filename}`
-
-## Cấu trúc dự án
-
-```
-src/
-├── app/
-│   ├── components/
-│   │   ├── exercise-list/          # Danh sách bài tập
-│   │   ├── exercise-card/          # Thẻ bài tập đơn lẻ
-│   │   ├── view-exercise/          # Xem chi tiết bài tập
-│   │   ├── create-exercise/        # Tạo bài tập mới
-│   │   ├── login/                  # Đăng nhập
-│   │   ├── teacher-dashboard/      # Dashboard giáo viên
-│   │   ├── student-dashboard/      # Dashboard học sinh
-│   │   └── layout/                 # Layout chung
-│   ├── services/
-│   │   ├── api.service.ts          # API calls
-│   │   ├── exercise.service.ts     # Logic bài tập
-│   │   ├── auth.service.ts         # Xác thực
-│   │   └── excel.service.ts       # Xử lý Excel
-│   ├── models/
-│   │   ├── exercise.model.ts       # Model bài tập
-│   │   └── user.model.ts          # Model người dùng
-│   └── app.routes.ts              # Định tuyến
-```
-
-## API Endpoints
-
-### Bài tập
-- `GET /exams` - Lấy danh sách bài tập
-- `GET /exams/{id}` - Lấy chi tiết bài tập
-- `POST /exams` - Tạo bài tập mới
-
-### Hình ảnh
-- `POST /images` - Upload hình ảnh
-- `GET /images/{filename}` - Lấy hình ảnh
-
-## Cài đặt và chạy
-
-### Yêu cầu hệ thống
-- Node.js 18+
-- Angular CLI 17+
-- npm hoặc yarn
-
-### Cài đặt
-```bash
-# Clone repository
-git clone <repository-url>
-cd bioedutech
-
-# Cài đặt dependencies
-npm install
-
-# Chạy ứng dụng
-ng serve
-```
-
-### Truy cập ứng dụng
-- **Development**: http://localhost:4200
-- **Exercise List**: http://localhost:4200/exercise-list
-- **Create Exercise**: http://localhost:4200/create-exercise
-
-## Cấu hình
-
-### API Base URL
-Cập nhật `baseUrl` trong `src/app/services/api.service.ts`:
-```typescript
-private baseUrl = 'http://your-api-server.com/api';
-```
-
-### Environment Variables
-Tạo file `src/environments/environment.ts`:
-```typescript
-export const environment = {
-  production: false,
-  apiUrl: 'http://your-api-server.com/api'
-};
-```
-
-## Sử dụng
-
 ### Giáo viên
 
-#### Xem danh sách bài tập
-1. Truy cập `/exercise-list`
-2. Xem thống kê tổng quan
-3. Tìm kiếm bài tập theo tên
-4. Click "📖 Xem bài thi" để xem chi tiết
+- Đăng nhập và vào dashboard giáo viên.
+- Xem thống kê tổng quan số bài thi và học sinh.
+- Tạo bài thi trắc nghiệm bằng nhập thủ công hoặc parse text.
+- Upload ảnh cho câu hỏi qua API `/images`.
+- Xem danh sách bài thi, tìm kiếm theo tên, xem chi tiết và xóa bài thi.
+- Quản lý học sinh: xem danh sách, upload Excel/CSV, tải template, xóa học sinh.
+- Xem báo cáo kết quả theo từng bài thi.
 
-#### Tạo bài tập mới
-1. Click "Tạo Bài Tập Mới"
-2. Nhập thông tin bài tập
-3. Thêm câu hỏi và đáp án
-4. Upload hình ảnh (tùy chọn)
-5. Lưu bài tập
+### Học sinh
 
-#### Xem chi tiết bài tập
-1. Click "📖 Xem bài thi" trên thẻ bài tập
-2. Xem toàn bộ nội dung bài tập
-3. Xem câu hỏi và đáp án đúng
-4. Xem hình ảnh minh họa (nếu có)
+- Đăng nhập và xem danh sách bài thi đang mở.
+- Tìm kiếm bài thi.
+- Làm bài trắc nghiệm một đáp án hoặc nhiều đáp án.
+- Làm bài có timer, tự động nộp khi hết giờ.
+- Xem kết quả, đáp án đúng/sai và yêu cầu AI giải thích từng câu.
 
-## Công nghệ sử dụng
+### AI
 
-- **Frontend**: Angular 17, TypeScript, SCSS
-- **UI Components**: Standalone Components
-- **State Management**: RxJS Observables
-- **HTTP Client**: Angular HttpClient
-- **Routing**: Angular Router
-- **Forms**: Angular Reactive Forms
+- Chatbot Sinh học dùng OpenAI-compatible Chat Completions endpoint.
+- AI explanation trên màn hình kết quả bài thi.
+- Cấu hình frontend đọc `OPENAI_API_KEY` từ `src/app/config/ai-config.ts` local và gọi thẳng `https://api.openai.com/v1/chat/completions`.
+- `src/app/config/ai-config.ts` nằm trong `.gitignore`; không điền key thật vào file tracked/template.
 
-## Tính năng đã hoàn thành
+## Cài đặt
 
-✅ **Quản lý bài tập**
-- Xem danh sách bài tập từ API
-- Tạo bài tập mới
-- Xem chi tiết bài tập
+Yêu cầu:
 
-✅ **Giao diện người dùng**
-- Layout responsive
-- Exercise cards đơn giản
-- View exercise với layout đẹp
+- Node.js 20.x được khuyến nghị theo môi trường hiện tại.
+- npm 10.x hoặc tương đương.
 
-✅ **API Integration**
-- Kết nối với backend API
-- Xử lý hình ảnh qua API
-- Error handling
+```bash
+npm install
+npm start
+```
 
-✅ **Tối ưu hóa**
-- Loại bỏ các tính năng không cần thiết
-- Code clean và maintainable
-- Performance optimization
+Ứng dụng chạy mặc định tại:
 
-## Roadmap
+```text
+http://localhost:4200
+```
 
-### Tính năng sắp tới
-- [ ] Chỉnh sửa bài tập
-- [ ] Xóa bài tập
-- [ ] Sao chép bài tập
-- [ ] Phân quyền người dùng
-- [ ] Dashboard học sinh
-- [ ] Làm bài tập trực tuyến
+## Scripts
 
-### Cải tiến
-- [ ] Caching API responses
-- [ ] Offline support
-- [ ] Progressive Web App (PWA)
-- [ ] Unit tests
-- [ ] E2E tests
+```bash
+npm start          # ng serve
+npm run build     # ng build production
+npm run build:dev # ng build development
+npm test          # ng test
+npm run lint      # ng lint, nếu project lint config khả dụng
+```
 
-## Đóng góp
+## Routes hiện hành
 
-1. Fork repository
-2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Tạo Pull Request
+| Route | Màn hình |
+| --- | --- |
+| `/`, `/home` | Landing page |
+| `/login` | Đăng nhập |
+| `/teacher`, `/teacher-dashboard` | Dashboard giáo viên |
+| `/teacher/students` | Quản lý học sinh |
+| `/create-exercise` | Tạo bài thi |
+| `/edit-exercise/:id` | Màn tạo bài thi ở chế độ sửa, hiện chủ yếu dựa vào state local |
+| `/exercise-list` | Danh sách bài thi của giáo viên |
+| `/reports` | Báo cáo kết quả bài thi |
+| `/student`, `/student/dashboard`, `/student-dashboard` | Dashboard học sinh |
+| `/student/exam/:id` | Làm bài |
+| `/student/exam-result/:id` | Xem kết quả sau khi nộp |
+| `/view-exercise/:id` | Xem chi tiết bài thi |
+| `/parse-demo`, `/api-test`, `/login-test` | Màn hỗ trợ test/dev |
 
-## License
+## API chính
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Base URL hiện hard-code trong `src/app/services/api.service.ts`:
 
-## Liên hệ
+```ts
+private baseUrl = 'https://chimeara.pythonanywhere.com';
+```
 
-- **Project Link**: [https://github.com/your-username/bioedutech](https://github.com/your-username/bioedutech)
-- **Email**: your-email@example.com
+Các endpoint frontend đang dùng:
 
----
+- `POST /login`
+- `GET /exams?page=&limit=`
+- `GET /exams/{exam_id}`
+- `POST /exams`
+- `POST /exams/{exam_id}/submit`
+- `GET /exams/{exam_id}/results`
+- `DELETE /exams/{exam_id}`
+- `POST /images`
+- `GET /images/{filename}`
+- `GET /users?page=&limit=&role=`
+- `DELETE /users/{user_id}`
+- `POST /register_excel`
+- `GET /register_excel/template`
 
-**Lưu ý**: Đây là phiên bản đơn giản hóa của ứng dụng, tập trung vào việc xem và quản lý bài tập một cách trực quan và dễ sử dụng.
+## Cấu trúc nhanh
+
+```text
+src/app/
+  app.routes.ts
+  config/
+    ai-config.ts
+    ai-config.template.ts
+  models/
+    exercise.model.ts
+    user.model.ts
+  services/
+    api.service.ts
+    auth.service.ts
+    exercise.service.ts
+    excel.service.ts
+    student-management.service.ts
+    timer.service.ts
+    chatbot.service.ts
+    ai-explanation.service.ts
+  components/
+    landing-page/
+    login/
+    teacher-dashboard/
+    teacher-header/
+    exercise-list/
+    exercise-card/
+    create-exercise/
+    view-exercise/
+    student-layout/
+    student-header/
+    student-footer/
+    student-dashboard/
+    take-exam/
+    exam-result/
+    student-management/
+    teacher-reports/
+    chatbot/
+```
+
+## Tài liệu
+
+Đọc `DOCUMENTATION_INDEX.md` trước để biết tài liệu nào là hiện hành và tài liệu nào là nhật ký lịch sử. Các file `*_FEATURE*.md`, `*_FIX*.md`, `*_UPDATE*.md` phần lớn là tài liệu theo từng đợt triển khai, không phải source of truth mới nhất.
+
+Đặc tả chi tiết theo màn hình/use case hiện nằm trong `docs/`.
+
+## Lưu ý kỹ thuật
+
+- Project hiện không có `src/environments`; API URL đang nằm trực tiếp trong `ApiService`.
+- Routes không lazy-load và component chưa dùng `ChangeDetectionStrategy.OnPush` đồng loạt.
+- Test hiện có vài spec cơ bản, chưa phải coverage đầy đủ.
+- Timer hỗ trợ các format như `30m`, `1h`, `45s`, `1h30m`, `2h15m30s`.
+- Có nhiều log debug trong service/component; khi làm production hardening nên gom lại hoặc thay bằng logging strategy rõ ràng.

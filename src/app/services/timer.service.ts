@@ -31,15 +31,15 @@ export class TimerService {
   constructor() {}
 
   /**
-   * Parse timer string in format "2m", "1h", "30s", etc.
-   * @param timerString - Format: "2m" (2 minutes), "1h" (1 hour), "30s" (30 seconds)
+   * Parse timer string in format "2m", "1h", "30s", "1h30m", "2h15m30s", etc.
+   * @param timerString - Format: "2m" (2 minutes), "1h30m" (1 hour 30 minutes)
    * @returns Duration in seconds
    */
   parseTimerString(timerString: string): number {
     if (!timerString) return 0;
     
-    timerString = timerString.trim().toLowerCase();
-    const regex = /^(\d+(?:\.\d+)?)\s*([mhs])$/;
+    timerString = timerString.trim().toLowerCase().replace(/\s+/g, '');
+    const regex = /^(?:(\d+(?:\.\d+)?)h)?(?:(\d+(?:\.\d+)?)m)?(?:(\d+(?:\.\d+)?)s)?$/;
     const match = timerString.match(regex);
     
     if (!match) {
@@ -47,19 +47,17 @@ export class TimerService {
       return 0;
     }
     
-    const value = parseFloat(match[1]);
-    const unit = match[2];
-    
-    switch (unit) {
-      case 'm':
-        return Math.round(value * 60); // Convert minutes to seconds
-      case 'h':
-        return Math.round(value * 3600); // Convert hours to seconds
-      case 's':
-        return Math.round(value);
-      default:
-        return 0;
+    const hours = match[1] ? parseFloat(match[1]) : 0;
+    const minutes = match[2] ? parseFloat(match[2]) : 0;
+    const seconds = match[3] ? parseFloat(match[3]) : 0;
+    const totalSeconds = Math.round(hours * 3600 + minutes * 60 + seconds);
+
+    if (totalSeconds <= 0) {
+      console.warn(`Invalid timer string duration: ${timerString}`);
+      return 0;
     }
+
+    return totalSeconds;
   }
 
   /**

@@ -356,7 +356,7 @@ export class CreateExerciseComponent implements OnInit {
         return `Giá trị tối đa là ${field.errors['max'].max}`;
       }
       if (field.errors['invalidTimer']) {
-        return 'Định dạng thời gian không hợp lệ. Ví dụ: 30m, 1h, 1h30m';
+        return 'Định dạng thời gian không hợp lệ. Ví dụ: 30m, 1h, 1h30m, 2h15m30s';
       }
     }
     return '';
@@ -373,13 +373,18 @@ export class CreateExerciseComponent implements OnInit {
       return null; // Optional field
     }
     
-    const timerPattern = /^(\d+h)?(\d+m)?$/;
-    const value = control.value.trim();
+    const timerPattern = /^(?:(\d+(?:\.\d+)?)h)?(?:(\d+(?:\.\d+)?)m)?(?:(\d+(?:\.\d+)?)s)?$/;
+    const value = control.value.trim().toLowerCase().replace(/\s+/g, '');
+    const match = value.match(timerPattern);
     
-    if (!timerPattern.test(value)) {
+    if (!match) {
       return { invalidTimer: true };
     }
+
+    const hours = match[1] ? parseFloat(match[1]) : 0;
+    const minutes = match[2] ? parseFloat(match[2]) : 0;
+    const seconds = match[3] ? parseFloat(match[3]) : 0;
     
-    return null;
+    return hours * 3600 + minutes * 60 + seconds > 0 ? null : { invalidTimer: true };
   }
 }

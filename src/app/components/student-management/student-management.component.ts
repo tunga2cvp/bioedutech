@@ -54,9 +54,12 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
   
   students: User[] = [];
   filteredStudents: User[] = [];
+  paginatedStudents: User[] = [];
   searchTerm = '';
   isLoading = false;
-  
+  currentPage = 1;
+  itemsPerPage = 20;
+  readonly pageSizeOptions = [10, 20, 50];
   
   displayedColumns: string[] = ['name', 'username', 'actions'];
 
@@ -90,6 +93,8 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
             // Filter out teachers, only keep students
             this.students = (response.users || []).filter(user => user.role === 'student');
             this.filteredStudents = [...this.students];
+            this.currentPage = 1;
+            this.updatePagination();
             console.log('✅ Students loaded from API:', {
               count: response.count,
               students: this.students.length,
@@ -234,14 +239,61 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
   }
 
   filterStudents(): void {
+    const normalizedSearch = this.searchTerm.trim().toLowerCase();
+
     this.filteredStudents = this.students.filter(student => {
-      const matchesSearch = !this.searchTerm || 
-        (student.name && student.name.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
-        student.username.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        (student.email && student.email.toLowerCase().includes(this.searchTerm.toLowerCase()));
+      const matchesSearch = !normalizedSearch ||
+        (student.name && student.name.toLowerCase().includes(normalizedSearch)) ||
+        student.username.toLowerCase().includes(normalizedSearch) ||
+        (student.email && student.email.toLowerCase().includes(normalizedSearch));
       
       return matchesSearch;
     });
+
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  updatePagination(): void {
+    this.currentPage = Math.min(Math.max(this.currentPage, 1), this.totalPages);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    this.paginatedStudents = this.filteredStudents.slice(
+      startIndex,
+      startIndex + this.itemsPerPage
+    );
+  }
+
+  onPageChange(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
+    }
+
+    this.currentPage = page;
+    this.updatePagination();
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredStudents.length / this.itemsPerPage));
+  }
+
+  get firstVisibleStudent(): number {
+    if (this.filteredStudents.length === 0) {
+      return 0;
+    }
+
+    return (this.currentPage - 1) * this.itemsPerPage + 1;
+  }
+
+  get lastVisibleStudent(): number {
+    return Math.min(
+      this.currentPage * this.itemsPerPage,
+      this.filteredStudents.length
+    );
   }
 
   editStudent(student: User): void {
@@ -265,6 +317,7 @@ export class StudentManagementComponent implements OnInit, OnDestroy {
               // Remove the student from the local lists
               this.students = this.students.filter(s => s.id !== student.id);
               this.filteredStudents = this.filteredStudents.filter(s => s.id !== student.id);
+              this.updatePagination();
               
               this.snackBar.open(`Đã xóa học sinh ${studentName} thành công`, 'Đóng', {
                 duration: 3000

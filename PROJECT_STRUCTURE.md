@@ -1,267 +1,188 @@
-# Cấu trúc dự án BioEduTech
+# Cấu Trúc Dự Án BioEduTech
 
-## Tổng quan
-BioEduTech là ứng dụng Angular đơn giản để quản lý bài tập trắc nghiệm, tập trung vào việc xem và quản lý nội dung bài tập một cách trực quan.
+Tài liệu này mô tả cấu trúc code hiện tại của repo. Nếu có khác biệt với tài liệu feature/fix cũ, ưu tiên tài liệu này và code trong `src/app`.
 
-## Cấu trúc thư mục
+## Tổng Quan
 
-```
+BioEduTech là Angular 17 application dùng standalone components. App không dùng NgModule truyền thống cho feature modules và hiện chưa lazy-load routes.
+
+```text
 bioedutech/
-├── src/
-│   ├── app/
-│   │   ├── components/                 # Angular Components
-│   │   │   ├── exercise-list/          # Danh sách bài tập
-│   │   │   │   ├── exercise-list.component.ts
-│   │   │   │   ├── exercise-list.component.html
-│   │   │   │   └── exercise-list.component.scss
-│   │   │   ├── exercise-card/          # Thẻ bài tập đơn lẻ
-│   │   │   │   ├── exercise-card.component.ts
-│   │   │   │   ├── exercise-card.component.html
-│   │   │   │   └── exercise-card.component.scss
-│   │   │   ├── view-exercise/          # Xem chi tiết bài tập
-│   │   │   │   ├── view-exercise.component.ts
-│   │   │   │   ├── view-exercise.component.html
-│   │   │   │   └── view-exercise.component.scss
-│   │   │   ├── create-exercise/        # Tạo bài tập mới
-│   │   │   │   ├── create-exercise.component.ts
-│   │   │   │   ├── create-exercise.component.html
-│   │   │   │   └── create-exercise.component.scss
-│   │   │   ├── login/                  # Đăng nhập
-│   │   │   │   ├── login.component.ts
-│   │   │   │   ├── login.component.html
-│   │   │   │   └── login.component.scss
-│   │   │   ├── teacher-dashboard/      # Dashboard giáo viên
-│   │   │   │   ├── teacher-dashboard.component.ts
-│   │   │   │   ├── teacher-dashboard.component.html
-│   │   │   │   └── teacher-dashboard.component.scss
-│   │   │   ├── student-dashboard/      # Dashboard học sinh
-│   │   │   │   ├── student-dashboard.component.ts
-│   │   │   │   ├── student-dashboard.component.html
-│   │   │   │   └── student-dashboard.component.scss
-│   │   │   └── layout/                 # Layout chung
-│   │   │       ├── layout.component.ts
-│   │   │       ├── layout.component.html
-│   │   │       └── layout.component.scss
-│   │   ├── services/                   # Angular Services
-│   │   │   ├── api.service.ts          # API calls và HTTP requests
-│   │   │   ├── exercise.service.ts     # Logic xử lý bài tập
-│   │   │   ├── auth.service.ts         # Xác thực và phân quyền
-│   │   │   └── excel.service.ts        # Xử lý file Excel
-│   │   ├── models/                     # TypeScript Interfaces
-│   │   │   ├── exercise.model.ts       # Model bài tập và câu hỏi
-│   │   │   └── user.model.ts          # Model người dùng
-│   │   ├── app.component.ts            # Root component
-│   │   ├── app.component.html          # Root template
-│   │   ├── app.component.scss          # Root styles
-│   │   ├── app.config.ts               # App configuration
-│   │   └── app.routes.ts               # Routing configuration
-│   ├── assets/                         # Static assets
-│   │   └── bioedutech-logo.svg         # Logo ứng dụng
-│   ├── styles.scss                     # Global styles
-│   ├── index.html                      # Main HTML file
-│   └── main.ts                         # Bootstrap file
-├── dist/                               # Build output
-├── node_modules/                       # Dependencies
-├── angular.json                        # Angular CLI configuration
-├── package.json                        # Dependencies và scripts
-├── package-lock.json                   # Lock file
-├── tsconfig.json                       # TypeScript configuration
-├── tsconfig.app.json                   # App TypeScript config
-├── tsconfig.spec.json                  # Test TypeScript config
-└── README.md                           # Project documentation
+  angular.json
+  package.json
+  tsconfig*.json
+  src/
+    main.ts
+    styles.scss
+    index.html
+    assets/
+    app/
+      app.component.*
+      app.config.ts
+      app.routes.ts
+      config/
+      models/
+      services/
+      components/
 ```
 
-## Chi tiết các thành phần
+## Entry Points
 
-### Components
+- `src/main.ts`: bootstrap `AppComponent` với `appConfig`.
+- `src/app/app.config.ts`: cấu hình router, HttpClient và Angular Material animations.
+- `src/app/app.routes.ts`: khai báo toàn bộ route hiện hành.
+- `src/app/app.component.html`: chỉ chứa `<router-outlet>`.
 
-#### ExerciseListComponent
-- **Mục đích**: Hiển thị danh sách tất cả bài tập
-- **Tính năng**: 
-  - Load bài tập từ API
-  - Tìm kiếm theo tên bài tập
-  - Hiển thị thống kê
-  - Navigation đến view-exercise
-- **Dependencies**: ExerciseService, Router
+## Components
 
-#### ExerciseCardComponent
-- **Mục đích**: Hiển thị thông tin một bài tập
-- **Tính năng**:
-  - Hiển thị thông tin cơ bản (tên, mô tả, số câu hỏi)
-  - Nút "Xem bài thi" duy nhất
-- **Dependencies**: Exercise model
+### Public/Auth
 
-#### ViewExerciseComponent
-- **Mục đích**: Hiển thị chi tiết bài tập
-- **Tính năng**:
-  - Load chi tiết bài tập từ API
-  - Hiển thị tất cả câu hỏi cùng lúc
-  - Hiển thị đáp án đúng
-  - Hiển thị hình ảnh qua API
-- **Dependencies**: ExerciseService, ApiService
+- `landing-page`: trang giới thiệu đầu tiên, điều hướng đến đăng nhập.
+- `login`: form đăng nhập, gọi `AuthService.login()`.
+- `login-test`: component dev/test API đăng nhập.
 
-#### CreateExerciseComponent
-- **Mục đích**: Tạo bài tập mới
-- **Tính năng**:
-  - Form tạo bài tập
-  - Thêm câu hỏi và đáp án
-  - Upload hình ảnh
-  - Submit qua API
-- **Dependencies**: ApiService, Router
+### Teacher
 
-### Services
+- `teacher-dashboard`: dashboard giáo viên, load số học sinh và bài thi từ API.
+- `teacher-header`: header/navigation dùng trong các màn giáo viên.
+- `exercise-list`: danh sách bài thi từ API, search, view detail, delete.
+- `exercise-card`: card hiển thị từng bài thi.
+- `create-exercise`: tạo bài thi, parse câu hỏi, upload ảnh, submit `/exams`.
+- `view-exercise`: xem chi tiết bài thi qua `GET /exams/{id}`.
+- `teacher-reports`: báo cáo kết quả bài thi, tổng hợp từ `/exams/{id}/results`.
+- `student-management`: upload Excel/CSV, xem/xóa học sinh.
+- `api-test`, `parse-demo`: màn hỗ trợ dev/test.
 
-#### ApiService
-- **Mục đích**: Xử lý tất cả API calls
-- **Methods**:
-  - `getTests()` - Lấy danh sách bài tập
-  - `getTestDetail(id)` - Lấy chi tiết bài tập
-  - `createTest(data)` - Tạo bài tập mới
-  - `uploadImage(file)` - Upload hình ảnh
-  - `getImageUrl(filename)` - Tạo URL hình ảnh
-- **Dependencies**: HttpClient
+### Student
 
-#### ExerciseService
-- **Mục đích**: Logic xử lý bài tập
-- **Methods**:
-  - `loadExercisesFromServer()` - Load bài tập từ server
-  - `getTestDetailFromServer(id)` - Load chi tiết bài tập
-  - `convertTestToExercise()` - Convert API data sang Exercise model
-- **Dependencies**: ApiService
+- `student-layout`: layout cha cho nhóm route học sinh.
+- `student-header`, `student-footer`: header/footer học sinh.
+- `student-dashboard`: danh sách bài thi cho học sinh.
+- `take-exam`: làm bài, chọn đáp án, timer, submit.
+- `exam-result`: so đáp án, hiển thị kết quả, gọi AI explanation.
 
-### Models
+### Shared/Other
 
-#### Exercise Model
-```typescript
-interface Exercise {
-  id: string;
-  title: string;
-  description: string;
-  grade: number;
-  chapter: string;
-  timeLimit: number;
-  maxScore: number;
-  questions: Question[];
-  createdAt: Date;
-  totalQuestions?: number;
-  // ... other fields
-}
+- `chatbot`: widget chat AI Sinh học.
+- `view-exercise-header`, `view-exercise-footer`: layout phụ cho màn xem bài.
+- `layout`: layout cũ/tổng quát, hiện không phải route wrapper chính.
+
+## Services
+
+### `ApiService`
+
+File: `src/app/services/api.service.ts`
+
+Vai trò: wrapper HTTP cho backend `https://chimeara.pythonanywhere.com`.
+
+Nhóm method chính:
+
+- Auth: `loginStudent()`
+- Exams: `createTest()`, `getTests()`, `getTestDetail()`, `submitExam()`, `getExamResults()`, `deleteExam()`
+- Images: `uploadImage()`, `getImage()`, `getImageUrl()`
+- Users: `getUsers()`, `getStudents()`, `getTeachers()`, `deleteUser()`
+- Excel: `registerStudentsExcel()`, `downloadExcelTemplate()`
+
+### `ExerciseService`
+
+Vai trò: state/mapping cho bài thi theo model frontend.
+
+- Giữ `BehaviorSubject<Exercise[]>`.
+- Parse text câu hỏi theo format `a)`, `b)`, `(đúng)`.
+- Convert API `exam_name`, `answers`, `correct_answers` sang `Exercise`, `Question`, `AnswerOption`.
+- Có một số method localStorage cũ cho draft/backward compatibility.
+
+### `AuthService`
+
+Vai trò: đăng nhập, giữ current user trong `BehaviorSubject`, persist `currentUser` vào `localStorage`.
+
+### `ExcelService`
+
+Vai trò: validate file Excel/CSV, upload qua API, fallback tạo template local nếu API template lỗi.
+
+### `TimerService`
+
+Vai trò: parse timer đơn vị đơn (`2m`, `1h`, `30s`), đếm ngược, warning/critical threshold, format thời gian.
+
+### AI Services
+
+- `ChatbotService`: gửi lịch sử chat lên OpenAI-compatible API.
+- `AIExplanationService`: tạo prompt giải thích đáp án sau bài thi.
+
+## Models
+
+### `exercise.model.ts`
+
+- `Exercise`
+- `Question`
+- `AnswerOption`
+- `CreateExerciseRequest`
+- `QuestionParseResult`
+- `ImageUploadResult`
+- `ExerciseStats`
+
+### `user.model.ts`
+
+- `BaseUser`
+- `StudentUser`
+- `TeacherUser`
+- `LoginCredentials`
+- registration interfaces
+- `AuthResponse`
+
+## Routes
+
+```ts
+{ path: '', component: LandingPageComponent }
+{ path: 'home', component: LandingPageComponent }
+{ path: 'login', component: LoginComponent }
+{ path: 'login-test', component: LoginTestComponent }
+{ path: 'teacher', component: TeacherDashboardComponent }
+{ path: 'teacher-dashboard', component: TeacherDashboardComponent }
+{ path: 'teacher/students', component: StudentManagementComponent }
+{ path: 'create-exercise', component: CreateExerciseComponent }
+{ path: 'edit-exercise/:id', component: CreateExerciseComponent }
+{ path: 'exercise-list', component: ExerciseListComponent }
+{ path: 'reports', component: TeacherReportsComponent }
+{ path: 'parse-demo', component: ParseDemoComponent }
+{ path: 'api-test', component: ApiTestComponent }
+{ path: 'student', component: StudentLayoutComponent, children: [...] }
+{ path: 'student-dashboard', component: StudentLayoutComponent, children: [...] }
+{ path: 'view-exercise/:id', component: StudentLayoutComponent, children: [...] }
+{ path: '**', redirectTo: '' }
 ```
 
-#### Question Model
-```typescript
-interface Question {
-  id: string;
-  content: string;
-  imageUrl?: string;
-  options: Option[];
-  type: 'single' | 'multiple';
-  explanation?: string;
-  order: number;
-}
-```
-
-## Routing
-
-```typescript
-const routes: Routes = [
-  { path: '', redirectTo: '/exercise-list', pathMatch: 'full' },
-  { path: 'exercise-list', component: ExerciseListComponent },
-  { path: 'view-exercise/:id', component: ViewExerciseComponent },
-  { path: 'create-exercise', component: CreateExerciseComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'teacher-dashboard', component: TeacherDashboardComponent },
-  { path: 'student-dashboard', component: StudentDashboardComponent }
-];
-```
-
-## API Integration
-
-### Endpoints
-- `GET /exams` - Lấy danh sách bài tập
-- `GET /exams/{id}` - Lấy chi tiết bài tập
-- `POST /exams` - Tạo bài tập mới
-- `POST /images` - Upload hình ảnh
-- `GET /images/{filename}` - Lấy hình ảnh
-
-### Data Flow
-1. **Exercise List**: ApiService → ExerciseService → ExerciseListComponent
-2. **Exercise Detail**: ApiService → ExerciseService → ViewExerciseComponent
-3. **Image Display**: ApiService.getImageUrl() → ViewExerciseComponent
+Lưu ý: code hiện có call điều hướng `/exam-report/:id` trong `ExerciseListComponent.viewReport()`, nhưng route này chưa được khai báo.
 
 ## Styling
 
-### SCSS Structure
-- **Global styles**: `src/styles.scss`
-- **Component styles**: Mỗi component có file `.scss` riêng
-- **Responsive design**: Mobile-first approach
-- **CSS Variables**: Sử dụng CSS custom properties
+- Global styles: `src/styles.scss`.
+- Mỗi component có SCSS riêng.
+- Angular Material theme được define trong `styles.scss`.
+- App dùng nhiều class custom như `btn`, `card`, grid, dashboard layout.
 
-### Design System
-- **Colors**: Primary (#3498db), Success (#27ae60), Warning (#f39c12)
-- **Typography**: System fonts với fallbacks
-- **Spacing**: Consistent spacing scale
-- **Components**: Card-based design
+## Testing Và Build
 
-## Build và Deployment
+Scripts hiện có:
 
-### Development
 ```bash
-ng serve
+npm run build
+npm test
+npm run test:ci
 ```
 
-### Production Build
-```bash
-ng build --configuration production
-```
+Trạng thái đã kiểm tra:
 
-### Build Output
-- `dist/bioedutech/browser/` - Static files
-- `dist/bioedutech/server/` - SSR files (nếu có)
+- `npm run build` thành công.
+- Có warning bundle initial vượt budget.
+- Tài liệu cũ có nhắc Jest/Cypress, lazy loading, OnPush nhưng code hiện tại chưa cấu hình/áp dụng các phần đó.
 
-## Testing
+## Tài Liệu Lịch Sử
 
-### Unit Tests
-- Component tests với Angular Testing Utilities
-- Service tests với HttpClientTestingModule
-- Model tests với Jest
+Repo có nhiều file markdown dạng nhật ký triển khai: `*_FEATURE*.md`, `*_FIX*.md`, `*_UPDATE*.md`, `*_GUIDE.md`. Các file này hữu ích để hiểu quyết định cũ, nhưng khi cần thông tin hiện hành hãy ưu tiên:
 
-### E2E Tests
-- Cypress cho end-to-end testing
-- Test scenarios cho user flows
-
-## Performance
-
-### Optimization
-- **Lazy Loading**: Routes được lazy load
-- **OnPush Strategy**: Sử dụng ChangeDetectionStrategy.OnPush
-- **TrackBy Functions**: Optimize *ngFor loops
-- **Image Optimization**: Lazy loading cho hình ảnh
-
-### Bundle Analysis
-- `ng build --stats-json` để analyze bundle size
-- Webpack Bundle Analyzer để visualize
-
-## Security
-
-### Best Practices
-- **XSS Protection**: Angular's built-in sanitization
-- **CSRF Protection**: HttpClient với CSRF tokens
-- **Input Validation**: Form validation và sanitization
-- **API Security**: Secure headers và authentication
-
-## Monitoring và Logging
-
-### Error Handling
-- Global error handler
-- HTTP interceptor cho error handling
-- Console logging cho development
-
-### Performance Monitoring
-- Angular DevTools
-- Lighthouse audits
-- Bundle size monitoring
-
----
-
-**Lưu ý**: Cấu trúc này được thiết kế để đơn giản và dễ maintain, tập trung vào việc quản lý bài tập một cách hiệu quả.
+- `README.md`
+- `PROJECT_STRUCTURE.md`
+- `QUICK_START_GUIDE.md`
+- `API_INTEGRATION_GUIDE.md`
+- `DOCUMENTATION_INDEX.md`
